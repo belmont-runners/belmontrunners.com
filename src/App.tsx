@@ -280,7 +280,9 @@ function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
 
         <Route path={ROOT} render={() => <Wrapper inHomePage />} />
       </Switch>
-      {isCurrentUserLoaded && (
+      {
+        /*
+        isCurrentUserLoaded && (
         <Drift
           appId="fxagpvvrufk4"
           userId={firebaseUser ? firebaseUser.uid : ''}
@@ -293,7 +295,9 @@ function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
             enableCampaigns
           }}
         />
-      )}
+      )
+      */
+      }
     </>
   )
 }
