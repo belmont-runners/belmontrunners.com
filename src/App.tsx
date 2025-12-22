@@ -31,7 +31,7 @@ import {
   VERIFY_EMAIL
 } from './urls'
 import UsersPage from './pages/users-page/UsersPage'
-import Drift from './components/Drift'
+// import Drift from './components/Drift'
 import * as Sentry from '@sentry/browser'
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage'
 import Complete from './pages/authentication/Complete'
@@ -281,7 +281,8 @@ function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
         <Route path={ROOT} render={() => <Wrapper inHomePage />} />
       </Switch>
       {
-        /*
+        /* Drift has been disabled.
+        
         isCurrentUserLoaded && (
         <Drift
           appId="fxagpvvrufk4"
