@@ -17,7 +17,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle
-} from '@material-ui/core'
+} from '@mui/material'
 import * as Sentry from '@sentry/browser'
 import { AuthError, checkActionCode } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'

@@ -10,8 +10,9 @@ import {
   Paper,
   Snackbar,
   Toolbar,
-  withMobileDialog
-} from '@material-ui/core'
+  useMediaQuery
+} from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import GoogleCalendarIcon from './GoogleCalendarIcon'
 import IosIcon from './IosIcon'
 import MicrosoftOutlookIcon from './MicrosoftOutlookIcon'
@@ -21,9 +22,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import LinkIcon from './LinkIcon'
 import MacOSIcon from './MacOSIcon'
 import './schedule.scss'
-import { Close as CloseIcon } from '@material-ui/icons'
-import * as PropTypes from 'prop-types'
-
+import { Close as CloseIcon } from '@mui/icons-material'
 const GOOGLE = 'GOOGLE'
 const ICAL = 'ICAL'
 const IOS = 'IOS'
@@ -33,7 +32,9 @@ const YAHOO = 'YAHOO'
 
 const ICAL_LINK = 'https://www.belmontrunners.com/public/basic.ical'
 
-function CalendarSelector({ fullScreen }: { fullScreen?: boolean }) {
+function CalendarSelector() {
+  const theme = useTheme()
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [videoId, setVideoId] = useState('')
@@ -155,7 +156,6 @@ function CalendarSelector({ fullScreen }: { fullScreen?: boolean }) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         elevation={0}
-        getContentAnchorEl={null}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center'
@@ -208,7 +208,4 @@ function CalendarSelector({ fullScreen }: { fullScreen?: boolean }) {
   )
 }
 
-CalendarSelector.propTypes = {
-  fullScreen: PropTypes.bool.isRequired
-}
-export default withMobileDialog()(CalendarSelector)
+export default CalendarSelector

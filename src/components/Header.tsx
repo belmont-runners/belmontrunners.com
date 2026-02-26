@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import {
   AppBar,
   Button,
@@ -11,9 +10,9 @@ import {
   ListItemText,
   SwipeableDrawer,
   Toolbar,
-  useMediaQuery,
-  useTheme
-} from '@material-ui/core'
+  useMediaQuery
+} from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import {
   AccountCircle as ProfileIcon,
   Announcement as BlogIcon,
@@ -31,7 +30,7 @@ import {
   QuestionAnswer as FAQIcon,
   Settings as AccountIcon,
   ShoppingCart as StoreIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import Profile from './Profile'
 import {
   ACCOUNT,
@@ -128,7 +127,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
     rootStyle.height = TOOLBAR_HEIGHT
 
   }
-  const useStyles = makeStyles(() => ({
+  const styles = {
     root: {
       flexGrow: 1,
       ...rootStyle
@@ -143,16 +142,13 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
     },
     menuItem: {
       font: '500 12px/80px "Roboto", sans-serif',
-      textTransform: 'uppercase',
+      textTransform: 'uppercase' as const,
       color: 'white',
       cursor: 'pointer'
     },
     drawer: {
       width: DRAWER_WIDTH,
       flexShrink: 0
-    },
-    drawerPaper: {
-      width: DRAWER_WIDTH
     },
     drawerHeader: {
       display: 'flex',
@@ -163,9 +159,6 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
       backgroundColor: '#9b5cf6',
       height: TOOLBAR_HEIGHT
     },
-    drawerHeaderCloseIcon: {
-      color: 'white'
-    },
     drawerList: {
       paddingTop: 20,
       paddingLeft: 10
@@ -173,8 +166,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
     drawerLink: {
       color: theme.palette.text.primary
     }
-  }))
-  const classes = useStyles()
+  }
 
   const handleOpenDrawer = () => {
     setShowDrawer(true)
@@ -191,33 +183,31 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
   const isSignedIn: boolean = isCurrentUserLoaded && !!firebaseUser
 
   return (
-    <div className={classes.root}>
-      <AppBar position="absolute" className={classes.appBar}>
+    <div style={styles.root}>
+      <AppBar position="absolute" sx={styles.appBar}>
         {
           isSmallDevice &&
           <SwipeableDrawer
-            className={classes.drawer}
+            sx={styles.drawer}
             anchor="right"
             open={showDrawer}
             onOpen={handleOpenDrawer}
-            classes={{
-              paper: classes.drawerPaper
-            }}
+            PaperProps={{ sx: { width: DRAWER_WIDTH } }}
             onClose={handleDrawerClose}
           >
-            <div className={classes.drawerHeader}>
+            <div style={styles.drawerHeader}>
               <IconButton onClick={handleDrawerClose}>
-                <CloseIcon className={classes.drawerHeaderCloseIcon} />
+                <CloseIcon sx={{ color: 'white' }} />
               </IconButton>
             </div>
             <Divider />
-            <List className={classes.drawerList}>
+            <List sx={styles.drawerList}>
               {
                 isSignedOut &&
                 <Link to={SIGN_IN} onClick={handleDrawerClose}>
                   <ListItem button>
                     <ListItemIcon><SignInIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Sign in' className={classes.drawerLink} />
+                    <ListItemText primary='Sign in' sx={styles.drawerLink} />
                   </ListItem>
 
                 </Link>
@@ -229,7 +219,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 }} onClick={handleDrawerClose}>
                   <ListItem button>
                     <ListItemIcon><JoinUsIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Join us' className={classes.drawerLink} />
+                    <ListItemText primary='Join us' sx={styles.drawerLink} />
                   </ListItem>
                 </Link>
               }
@@ -238,7 +228,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 <Link to={ROOT} onClick={handleDrawerClose}>
                   <ListItem button>
                     <ListItemIcon><HomeIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Home' className={classes.drawerLink} />
+                    <ListItemText primary='Home' sx={styles.drawerLink} />
                   </ListItem>
                 </Link>
               }
@@ -248,13 +238,13 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                   <Link to={PROFILE} onClick={handleDrawerClose}>
                     <ListItem button>
                       <ListItemIcon><ProfileIcon color='primary' /></ListItemIcon>
-                      <ListItemText primary='Profile' className={classes.drawerLink} />
+                      <ListItemText primary='Profile' sx={styles.drawerLink} />
                     </ListItem>
                   </Link>
                   <Link to={ACCOUNT} onClick={handleDrawerClose}>
                     <ListItem button>
                       <ListItemIcon><AccountIcon color='primary' /></ListItemIcon>
-                      <ListItemText primary='Account' className={classes.drawerLink} />
+                      <ListItemText primary='Account' sx={styles.drawerLink} />
                     </ListItem>
                   </Link>
                 </>
@@ -263,35 +253,35 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
               <Link to={ABOUT_US} onClick={handleDrawerClose}>
                 <ListItem button>
                   <ListItemIcon><LeadershipIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='About Us' className={classes.drawerLink} />
+                  <ListItemText primary='About Us' sx={styles.drawerLink} />
                 </ListItem>
               </Link>
 
               <a href={SCHEDULE} onClick={handleDrawerClose}>
                 <ListItem button>
                   <ListItemIcon><ScheduleIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='Schedule' className={classes.drawerLink} />
+                  <ListItemText primary='Schedule' sx={styles.drawerLink} />
                 </ListItem>
               </a>
 
               <Link to={FAQ} onClick={handleDrawerClose}>
                 <ListItem button>
                   <ListItemIcon><FAQIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='FAQ' className={classes.drawerLink} />
+                  <ListItemText primary='FAQ' sx={styles.drawerLink} />
                 </ListItem>
               </Link>
 
               <a href={BLOG} onClick={handleDrawerClose}>
                 <ListItem button>
                   <ListItemIcon><BlogIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='Latest news' className={classes.drawerLink} />
+                  <ListItemText primary='Latest news' sx={styles.drawerLink} />
                 </ListItem>
               </a>
 
               <a href={STORE} onClick={handleDrawerClose}>
                 <ListItem button>
                   <ListItemIcon><StoreIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='Store' className={classes.drawerLink} />
+                  <ListItemText primary='Store' sx={styles.drawerLink} />
                 </ListItem>
               </a>
 
@@ -300,7 +290,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 <Link to={MEMBERS} onClick={handleDrawerClose}>
                   <ListItem button>
                     <ListItemIcon><MembersIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Members' className={classes.drawerLink} />
+                    <ListItemText primary='Members' sx={styles.drawerLink} />
                   </ListItem>
                 </Link>
               }
@@ -310,7 +300,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 <Link to={USERS} onClick={handleDrawerClose}>
                   <ListItem button>
                     <ListItemIcon><UsersIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Users' className={classes.drawerLink} />
+                    <ListItemText primary='Users' sx={styles.drawerLink} />
                   </ListItem>
                 </Link>
               }
@@ -320,7 +310,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 <Link to={CONTACTS} onClick={handleDrawerClose}>
                   <ListItem button>
                     <ListItemIcon><ContactsIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Contacts' className={classes.drawerLink} />
+                    <ListItemText primary='Contacts' sx={styles.drawerLink} />
                   </ListItem>
                 </Link>
               }
@@ -335,7 +325,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                       }}>
                   <ListItem button>
                     <ListItemIcon><SignOutIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Sign out' className={classes.drawerLink} />
+                    <ListItemText primary='Sign out' sx={styles.drawerLink} />
                   </ListItem>
                 </Link>
               }
@@ -343,7 +333,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
           </SwipeableDrawer>
         }
 
-        <Toolbar className={classes.toolbar}>
+        <Toolbar sx={styles.toolbar}>
           <div className='d-flex w-100 align-items-center'>
             <Link to={ROOT}>
               <img src="img/logo.png" alt='' style={{ verticalAlign: 'initial' }} />
@@ -356,27 +346,27 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 !isSmallDevice &&
                 <>
 
-                  <a href={SCHEDULE} className={classes.menuItem}>
+                  <a href={SCHEDULE} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>SCHEDULE</span>
                     </div>
                   </a>
-                  <Link to={ABOUT_US} className={classes.menuItem}>
+                  <Link to={ABOUT_US} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>About Us</span>
                     </div>
                   </Link>
-                  <Link to={FAQ} className={classes.menuItem}>
+                  <Link to={FAQ} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>FAQ</span>
                     </div>
                   </Link>
-                  <a href={BLOG} className={classes.menuItem}>
+                  <a href={BLOG} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>Latest news</span>
                     </div>
                   </a>
-                  <a href={STORE} className={classes.menuItem}>
+                  <a href={STORE} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>Store</span>
                     </div>
@@ -385,7 +375,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
               }
               {
                 !isSmallDevice && isMember &&
-                <Link to={MEMBERS} className={classes.menuItem} /*style={{ marginLeft: '2em' }}*/>
+                <Link to={MEMBERS} style={styles.menuItem} /*style={{ marginLeft: '2em' }}*/>
                   <div className='text-white d-flex align-items-center'>
                     <span className='mx-2 text-with-shadow'>Members</span>
                   </div>

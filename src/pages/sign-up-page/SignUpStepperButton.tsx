@@ -1,4 +1,4 @@
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 import React from 'react'
 import * as PropTypes from 'prop-types'
 
@@ -29,7 +29,7 @@ function SignUpStepperButton({
         <Button
           className="mr-4"
           variant="contained"
-          color="default"
+          color="inherit"
           fullWidth
           onClick={handleSecondaryClicked}
           disabled={secondaryDisabled}

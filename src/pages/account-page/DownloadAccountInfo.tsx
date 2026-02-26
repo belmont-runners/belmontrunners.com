@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { compose } from 'underscore'
-import { Button, Card, CardContent, Typography } from '@material-ui/core'
+import { Button, Card, CardContent, Typography } from '@mui/material'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 // @ts-ignore
 import DownloadButton from 'react-dfb'

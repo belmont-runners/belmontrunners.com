@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { Stepper, Step, StepLabel } from '@material-ui/core'
+import { Stepper, Step, StepLabel } from '@mui/material'
 
 import SignUpStepAuth from './SignUpStepAuth'
 import SignUpStepPayment from './SignUpStepPayment'

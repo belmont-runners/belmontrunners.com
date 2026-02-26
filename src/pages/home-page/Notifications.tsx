@@ -1,6 +1,6 @@
 /*eslint no-unreachable: 0*/
 import React, { useEffect, useState } from 'react'
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 import { ACTION_COLOR, LINK_COLOR, Snackbar } from '../../components/Snackbar'
 import moment from 'moment/moment'
 import * as PropTypes from 'prop-types'

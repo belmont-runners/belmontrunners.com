@@ -6,8 +6,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle
-} from '@material-ui/core'
-import { TextField } from 'final-form-material-ui'
+} from '@mui/material'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import {
   PASSWORDS_MISMATCH,
   WRONG_PASSWORD

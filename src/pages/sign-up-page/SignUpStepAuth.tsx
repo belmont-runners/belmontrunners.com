@@ -5,7 +5,7 @@ import {
   updateProfile
 } from 'firebase/auth'
 import React, { useEffect, useState } from 'react'
-import { TextField } from 'final-form-material-ui'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import {
   EMAIL_ALREADY_IN_USE,
   INVALID_EMAIL,

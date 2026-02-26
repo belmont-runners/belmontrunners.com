@@ -1,20 +1,10 @@
 import React from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import Popover from '@material-ui/core/Popover'
-import Typography from '@material-ui/core/Typography'
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
-import IconButton from '@material-ui/core/IconButton'
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    typography: {
-      padding: theme.spacing(2)
-    }
-  })
-)
+import Popover from '@mui/material/Popover'
+import Typography from '@mui/material/Typography'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import IconButton from '@mui/material/IconButton'
 
 export default function Help() {
-  const classes = useStyles()
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -48,7 +38,7 @@ export default function Help() {
           horizontal: 'center'
         }}
       >
-        <Typography className={classes.typography}>
+        <Typography sx={{ p: 2 }}>
           <p><b>Member:</b> someone with a valid membership (paid membership fee in the last 12 months)</p>
           <p><b>User:</b> someone who created an account on our website but is not a member</p>
           <p><b>Subscriber:</b> someone who added their email address via the subscribe form on our website</p>

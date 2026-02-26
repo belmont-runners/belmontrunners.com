@@ -1,9 +1,8 @@
 import React from 'react'
 import {
-  makeStyles,
   Snackbar as MUISnackbar,
   SnackbarContent
-} from '@material-ui/core'
+} from '@mui/material'
 import * as PropTypes from 'prop-types'
 
 const ACTION_COLOR = '#b39ddb'
@@ -15,15 +14,8 @@ interface Props {
   onClose?: () => void
 }
 function Snackbar({ action, message, onClose }: Props) {
-  const useStyles = makeStyles(() => ({
-    root: {},
-    content: { backgroundColor: '#673ab7' }
-  }))
-  const classes = useStyles()
-
   return (
     <MUISnackbar
-      className={classes.root}
       anchorOrigin={{
         vertical: 'bottom',
         horizontal: 'center'
@@ -33,7 +25,7 @@ function Snackbar({ action, message, onClose }: Props) {
     >
       <SnackbarContent
         aria-describedby="client-snackbar"
-        className={classes.content}
+        sx={{ backgroundColor: '#673ab7' }}
         message={message}
         action={action}
       />
