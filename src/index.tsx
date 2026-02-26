@@ -21,19 +21,19 @@ Sentry.init({
 const store = configureStore()
 
 console.log(
-  'process.env.REACT_APP_STRIPE_PUBLIC_KEY:',
-  process.env.REACT_APP_STRIPE_PUBLIC_KEY
+  'import.meta.env.VITE_STRIPE_PUBLIC_KEY:',
+  import.meta.env.VITE_STRIPE_PUBLIC_KEY
 )
 
-if (!process.env.REACT_APP_STRIPE_PUBLIC_KEY) {
-  console.error('Missing REACT_APP_STRIPE_PUBLIC_KEY')
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  console.error('Missing VITE_STRIPE_PUBLIC_KEY')
 } else {
   ReactDOM.render(
     <ErrorBoundary>
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <MuiThemeProvider theme={theme}>
-            <StripeProvider apiKey={process.env.REACT_APP_STRIPE_PUBLIC_KEY}>
+            <StripeProvider apiKey={import.meta.env.VITE_STRIPE_PUBLIC_KEY}>
               <Elements>
                 {/*@ts-ignore*/}
                 <App />

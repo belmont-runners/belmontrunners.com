@@ -67,10 +67,10 @@ Map.propTypes = {
   google: PropTypes.object.isRequired
 }
 
-if (!process.env.REACT_APP_GOOGLE_MAPS_API_KEY) {
-  console.error('Missing REACT_APP_GOOGLE_MAPS_API_KEY')
+if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+  console.error('Missing VITE_GOOGLE_MAPS_API_KEY')
 }
 
 export default GoogleApiWrapper({
-  apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'KEY_NOT_FOUND'
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'KEY_NOT_FOUND'
 })(Map)
