@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import configureStore, { history } from './store'
 import './index.css'
@@ -28,7 +28,9 @@ console.log(
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   console.error('Missing VITE_STRIPE_PUBLIC_KEY')
 } else {
-  ReactDOM.render(
+  const container = document.getElementById('root')!
+  const root = createRoot(container)
+  root.render(
     <ErrorBoundary>
       <Provider store={store}>
         <ConnectedRouter history={history}>
@@ -42,8 +44,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
           </MuiThemeProvider>
         </ConnectedRouter>
       </Provider>
-    </ErrorBoundary>,
-    document.getElementById('root')
+    </ErrorBoundary>
   )
 
 // If you want your app to work offline and load faster, you can change
