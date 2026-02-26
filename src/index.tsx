@@ -1,10 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import configureStore, { history } from './store'
+import configureStore from './store'
 import './index.css'
 import App from './App'
-import { ConnectedRouter } from 'connected-react-router'
+import { BrowserRouter } from 'react-router-dom'
 import { Elements, StripeProvider } from 'react-stripe-elements'
 import ErrorBoundary from './components/ErrorBoundary'
 import * as serviceWorker from './serviceWorker'
@@ -33,7 +33,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   root.render(
     <ErrorBoundary>
       <Provider store={store}>
-        <ConnectedRouter history={history}>
+        <BrowserRouter>
           <ThemeProvider theme={theme}>
             <StripeProvider apiKey={import.meta.env.VITE_STRIPE_PUBLIC_KEY}>
               <Elements>
@@ -42,7 +42,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
               </Elements>
             </StripeProvider>
           </ThemeProvider>
-        </ConnectedRouter>
+        </BrowserRouter>
       </Provider>
     </ErrorBoundary>
   )

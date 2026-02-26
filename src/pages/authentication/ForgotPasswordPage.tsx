@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { INVALID_EMAIL, USER_NOT_FOUND_EXPLICIT } from '../../messages'
 import {
   Button,
@@ -58,7 +58,7 @@ const ForgotPasswordPage = () => {
 
   if (close) {
     console.log('redirecting to root', close)
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (

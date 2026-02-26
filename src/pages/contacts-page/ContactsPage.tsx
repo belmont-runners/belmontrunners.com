@@ -27,7 +27,7 @@ import {
 } from '../../fields'
 import moment from 'moment'
 import { ROOT } from '../../urls'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
 import { ExportToCsv } from 'export-to-csv'
 // @ts-ignore
@@ -178,7 +178,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
   }
 
   if (firebaseUser && !allowRead) {
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (

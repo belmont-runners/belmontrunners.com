@@ -9,7 +9,7 @@ import moment from 'moment'
 import { ROOT } from '../../urls'
 import { connect } from 'react-redux'
 import * as Sentry from '@sentry/browser'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 import { animateScroll } from 'react-scroll'
 import { compose } from 'underscore'
@@ -30,7 +30,7 @@ interface StripeTransactionResponse {
   id: string
 }
 
-interface Props extends RouteComponentProps {
+interface Props {
   firebaseUser: User
   needToPay: boolean
   totalAmount: number
@@ -44,7 +44,6 @@ interface Props extends RouteComponentProps {
 
 function SignUpStepPayment({
                              firebaseUser: { displayName, uid, email },
-                             history,
                              stripe,
                              isLast,
                              needToPay,
@@ -54,6 +53,7 @@ function SignUpStepPayment({
                              youngerThan13,
                              updateUserData
                            }: Props) {
+  const navigate = useNavigate()
   useEffect(() => {
     animateScroll.scrollToTop({ duration: 0 })
   }, [])
@@ -234,7 +234,7 @@ function SignUpStepPayment({
   console.log('SignUpStepPayment.render() called.')
 
   const handleClose = () => {
-    history.push(ROOT)
+    navigate(ROOT)
   }
 
   function handleNextClicked() {
@@ -316,8 +316,6 @@ SignUpStepPayment.propTypes = {
   isLast: PropTypes.bool,
   onNextClicked: PropTypes.func.isRequired,
 
-  // from router-dom
-  history: PropTypes.object.isRequired
 }
 
 const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisState) => {
@@ -370,7 +368,6 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
 
 export default compose(
   UpdateUserData,
-  withRouter,
   injectStripe,
   LoggedInState(),
   connect(mapStateToProps)

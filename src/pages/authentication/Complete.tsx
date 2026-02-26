@@ -1,9 +1,8 @@
 import { auth } from '../../firebase'
 import React, { useState, useEffect } from 'react'
 import queryString from 'query-string'
-import * as PropTypes from 'prop-types'
 import { ROOT } from '../../urls'
-import { Redirect, withRouter, RouteComponentProps } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import {
   EXPIRED_ACTION_CODE,
   INVALID_ACTION_CODE_INVALID_URL,
@@ -22,7 +21,8 @@ import * as Sentry from '@sentry/browser'
 import { AuthError, checkActionCode } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 
-const Complete = ({ location: { search } }: RouteComponentProps) => {
+const Complete = () => {
+  const { search } = useLocation()
 
   const [errorMessage, setErrorMessage] = useState('')
   const [redirect, setRedirect] = useState<JSX.Element>()
@@ -64,18 +64,17 @@ const Complete = ({ location: { search } }: RouteComponentProps) => {
         let tmpRedirect
         if (mode) {
           tmpRedirect = (
-            <Redirect
-              to={{
-                pathname: `/${mode}`,
-                state: {
-                  info,
-                  query
-                }
+            <Navigate
+              to={`/${mode}`}
+              state={{
+                info,
+                query
               }}
+              replace
             />
           )
         } else {
-          tmpRedirect = <Redirect to={ROOT} />
+          tmpRedirect = <Navigate to={ROOT} replace />
         }
 
         setRedirect(tmpRedirect)
@@ -95,7 +94,7 @@ const Complete = ({ location: { search } }: RouteComponentProps) => {
       open
       fullWidth
       maxWidth="xs"
-      onClose={() => setRedirect(<Redirect to={ROOT} />)}
+      onClose={() => setRedirect(<Navigate to={ROOT} replace />)}
       aria-labelledby="form-dialog-title"
     >
       <DialogTitle>Error</DialogTitle>
@@ -107,7 +106,7 @@ const Complete = ({ location: { search } }: RouteComponentProps) => {
       </DialogContent>
       <DialogActions>
         <Button
-          onClick={() => setRedirect(<Redirect to={ROOT} />)}
+          onClick={() => setRedirect(<Navigate to={ROOT} replace />)}
           color="primary"
         >
           Close
@@ -117,12 +116,4 @@ const Complete = ({ location: { search } }: RouteComponentProps) => {
   )
 }
 
-Complete.propTypes = {
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired,
-    search: PropTypes.string.isRequired
-  }).isRequired
-}
-
-// @ts-ignore
-export default withRouter(Complete)
+export default Complete

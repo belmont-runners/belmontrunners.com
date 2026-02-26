@@ -33,7 +33,7 @@ import { Avatar, Checkbox, IconButton } from '@mui/material'
 import * as Sentry from '@sentry/browser'
 import { getAvatar, IRedisState, IUser } from '../../entities/User'
 import { ROOT } from '../../urls'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import ConfirmDeletion from './ConfirmDeletion'
 import calc from '../../utilities/membershipUtils'
 import { firestore, functions } from '../../firebase'
@@ -314,7 +314,7 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
   })
 
   if (firebaseUser && !allowRead) {
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (

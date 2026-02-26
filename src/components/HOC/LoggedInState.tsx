@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Redirect, withRouter, RouteComponentProps } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { SIGN_IN } from '../../urls'
 import { connect } from 'react-redux'
 import * as PropTypes from 'prop-types'
-import { compose } from 'underscore'
 import { IRedisState } from '../../entities/User'
 import { User } from 'firebase/auth'
 
@@ -18,7 +17,7 @@ const LoggedInState = (params: Params = {}) => {
   let { name } = params
 
   return (WrappedComponent: any) => {
-    interface Props extends RouteComponentProps {
+    interface Props {
       ___isCurrentUserLoaded___: boolean
       ___currentUser___: User
     }
@@ -26,6 +25,7 @@ const LoggedInState = (params: Params = {}) => {
     const Inner = (props: Props) => {
       name = name || WrappedComponent.name
       const { ___isCurrentUserLoaded___, ___currentUser___ } = props
+      const location = useLocation()
       const [redirectToRoot, setRedirectToRoot] = useState<boolean | null>(null)
       const [initialIsLoggedIn, setInitialIsLoggedIn] = useState<boolean | null>(null)
 
@@ -110,11 +110,10 @@ const LoggedInState = (params: Params = {}) => {
       delete filteredProps.___isCurrentUserLoaded___
 
       return redirectToRoot ? (
-        <Redirect
-          to={{
-            pathname: SIGN_IN,
-            state: { redirectUrl: props.location.pathname }
-          }}
+        <Navigate
+          to={SIGN_IN}
+          state={{ redirectUrl: location.pathname }}
+          replace
         />
       ) : (
         <WrappedComponent {...filteredProps} />
@@ -129,15 +128,9 @@ const LoggedInState = (params: Params = {}) => {
     }
     Inner.propTypes = {
       ___isCurrentUserLoaded___: PropTypes.bool.isRequired,
-      ___currentUser___: PropTypes.object,
-      location: PropTypes.shape({
-        pathname: PropTypes.string.isRequired
-      }).isRequired
+      ___currentUser___: PropTypes.object
     }
-    return compose(
-      withRouter,
-      connect(mapStateToProps)
-    )(Inner)
+    return connect(mapStateToProps)(Inner)
   }
 }
 
