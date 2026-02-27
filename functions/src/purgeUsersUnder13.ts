@@ -3,7 +3,7 @@ import DeleteUser from './deleteUser'
 import { User } from './User'
 import { each } from 'bluebird'
 
-const moment = require('moment')
+import dayjs from 'dayjs'
 
 const PurgeUsersUnder13 = (admin: Admin.app.App, apiKey: string, shouldDelete: boolean) => {
   const firestore = admin.firestore()
@@ -17,7 +17,7 @@ const PurgeUsersUnder13 = (admin: Admin.app.App, apiKey: string, shouldDelete: b
       user.uid = userDoc.id
       if (
         user.dateOfBirth &&
-        moment().diff(moment(user.dateOfBirth), 'years') < 13
+        dayjs().diff(dayjs(user.dateOfBirth), 'years') < 13
       ) {
         usersToDelete.push(user)
       }

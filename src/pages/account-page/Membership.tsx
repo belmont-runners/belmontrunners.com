@@ -5,7 +5,9 @@ import { Card, CardContent, Typography } from '@mui/material'
 import { IRedisState, IUser } from '../../entities/User'
 import calc from '../../utilities/membershipUtils'
 import { compose } from 'underscore'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+dayjs.extend(localizedFormat)
 import { Link } from 'react-router-dom'
 import { JOIN } from '../../urls'
 
@@ -23,7 +25,7 @@ function Membership({ userData }: Props) {
         return (
             <>
               Your membership expires on <span
-                className="text-danger">{moment(userDataJS.membershipExpiresAt).format('LL')}</span>.<br/>
+                className="text-danger">{dayjs(userDataJS.membershipExpiresAt).format('LL')}</span>.<br/>
               Click <Link
                 to={{pathname: JOIN}}>here</Link> to renew your membership.
             </>
@@ -32,7 +34,7 @@ function Membership({ userData }: Props) {
         return (
             <>
               Your membership expires on <span
-                className="text-success">{moment(userDataJS.membershipExpiresAt).format('LL')}.</span>
+                className="text-success">{dayjs(userDataJS.membershipExpiresAt).format('LL')}.</span>
             </>
         )
       }
@@ -40,7 +42,7 @@ function Membership({ userData }: Props) {
       return (
           <>
             Your membership expired on <span
-              className="text-danger">{moment(userDataJS.membershipExpiresAt).format('LL')}</span>.<br/>
+              className="text-danger">{dayjs(userDataJS.membershipExpiresAt).format('LL')}</span>.<br/>
             Click <Link
               to={{pathname: JOIN}}>here</Link> to renew your membership.
           </>

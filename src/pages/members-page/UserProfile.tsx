@@ -1,7 +1,7 @@
 import * as PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import initials from 'initials'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import {
   ADDRESS1,
   ADDRESS2,
@@ -319,7 +319,7 @@ function UserProfile({ onClose, user, userData, updateUserData, firebaseUser }: 
             <CakeIcon className="mr-2" style={{ fill: '#D2D6DB' }} />,
             visibility[DATE_OF_BIRTH] || defaultVisibility[DATE_OF_BIRTH],
             (val: VisibilityEnum) => handleVisibilityChanged([DATE_OF_BIRTH])(val),
-            user.dateOfBirth ? moment(user.dateOfBirth).format('MMMM D') : undefined
+            user.dateOfBirth ? dayjs(user.dateOfBirth).format('MMMM D') : undefined
           )}
         </div>
       </div>

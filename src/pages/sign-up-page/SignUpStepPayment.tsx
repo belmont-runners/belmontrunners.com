@@ -5,7 +5,9 @@ import SignUpStepperButton from './SignUpStepperButton'
 import './Stripe.scss'
 import * as PropTypes from 'prop-types'
 import LoggedInState from '../../components/HOC/LoggedInState'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
+dayjs.extend(advancedFormat)
 import { ROOT } from '../../urls'
 import { connect } from 'react-redux'
 import * as Sentry from '@sentry/browser'
@@ -192,11 +194,11 @@ function SignUpStepPayment({
         <>
           <div className="text-success text-center mt-4">
             Your membership expires on{' '}
-            {moment(membershipExpiresAt).format('MMMM Do YYYY')}
+            {dayjs(membershipExpiresAt).format('MMMM Do YYYY')}
           </div>
           <div className="text-success text-center">
             You can renew it after{' '}
-            {moment(membershipExpiresAt)
+            {dayjs(membershipExpiresAt)
               .subtract(1, 'month')
               .format('MMMM Do YYYY')}
           </div>
@@ -217,11 +219,11 @@ function SignUpStepPayment({
         </h4>
         {membershipExpiresAt && (
           <div className="text-success mb-3 text-center">
-            {moment(membershipExpiresAt).isAfter(moment())
-              ? `Your current membership expires on ${moment(membershipExpiresAt).format(
+            {dayjs(membershipExpiresAt).isAfter(dayjs())
+              ? `Your current membership expires on ${dayjs(membershipExpiresAt).format(
                 'MMMM Do YYYY'
               )}`
-              : `Your membership expired on ${moment(membershipExpiresAt).format(
+              : `Your membership expired on ${dayjs(membershipExpiresAt).format(
                 'MMMM Do YYYY'
               )}`}
           </div>
@@ -329,8 +331,8 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
       console.error('missing userDataJS.dateOfBirth')
       totalAmount = MEMBERSHIP_FEE_ADULT
     } else {
-      const dateOfBirth = moment(userDataJS.dateOfBirth)
-      const isAdult = moment().diff(dateOfBirth, 'years') >= 18
+      const dateOfBirth = dayjs(userDataJS.dateOfBirth)
+      const isAdult = dayjs().diff(dateOfBirth, 'years') >= 18
       if (isAdult) {
         totalAmount = MEMBERSHIP_FEE_ADULT
       } else {
@@ -347,7 +349,7 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
     }
     youngerThan13 =
       (userDataJS.dateOfBirth &&
-        moment().diff(moment(userDataJS.dateOfBirth), 'years') < 13) ||
+        dayjs().diff(dayjs(userDataJS.dateOfBirth), 'years') < 13) ||
       false
     if (youngerThan13) {
       needToPay = false

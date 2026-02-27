@@ -1,7 +1,11 @@
 import * as Admin from 'firebase-admin'
 import { User } from './User'
 import calc from './membershipUtils'
-const moment = require('moment')
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+dayjs.extend(utc)
+dayjs.extend(customParseFormat)
 
 const ExtendMembership = (admin: Admin.app.App) => {
   const firestore = admin.firestore()
@@ -18,7 +22,7 @@ const ExtendMembership = (admin: Admin.app.App) => {
     users.forEach((user: User) => {
       if (!calc(user).wasNeverAMember) {
         promises.push(firestore.doc(`users/${user.uid}`).set(
-          {membershipExpiresAt: moment("07-01-2021", "MM-DD-YYYY").utc().format()}, {merge: true}
+          {membershipExpiresAt: dayjs("07-01-2021", "MM-DD-YYYY").utc().format()}, {merge: true}
         ))
       }
     })

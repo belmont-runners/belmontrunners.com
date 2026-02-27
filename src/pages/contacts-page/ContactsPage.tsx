@@ -25,7 +25,7 @@ import {
   EMAIL,
   SUBSCRIBERS_ARRAY_KEY
 } from '../../fields'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { ROOT } from '../../urls'
 import { Navigate } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
@@ -65,7 +65,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
       showLabels: true,
       useBom: true,
       useKeysAsHeaders: true,
-      filename: 'contacts-' + moment().format()
+      filename: 'contacts-' + dayjs().format()
     }
 
     const csvExporter = new ExportToCsv(options)

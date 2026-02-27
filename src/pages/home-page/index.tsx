@@ -7,7 +7,7 @@ import Map from './Map'
 import Notifications from './Notifications'
 import { Element, scroller, animateScroll } from 'react-scroll'
 import Promotion from './Promotion'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { useLocation } from 'react-router-dom'
 import { IRedisState } from '../../entities/User'
 import { connect } from 'react-redux'
@@ -48,7 +48,7 @@ function Home({ isCurrentUserLoaded }: Props) {
     <div>
       <HomeBanner />
       <Welcome />
-      {moment().isBefore('2019-12-24') && <Promotion />}
+      {dayjs().isBefore('2019-12-24') && <Promotion />}
       <Element name="events">
         <div>
           <EventSchedule />
