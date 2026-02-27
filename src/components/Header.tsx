@@ -49,7 +49,6 @@ import {
   USERS, SCHEDULE
 } from '../urls'
 import { Link, useLocation } from 'react-router-dom'
-import $ from 'jquery'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import calc from '../utilities/membershipUtils'
@@ -87,17 +86,17 @@ function Header({ isCurrentUserLoaded, firebaseUser, allowUsersPage, allowContac
       }
       const nav_offset_top: number = TOOLBAR_HEIGHT + 50
 
-      const scroll = $(window).scrollTop()
-      if (scroll && Number(scroll) >= nav_offset_top) {
+      const scroll = window.scrollY
+      if (scroll >= nav_offset_top) {
         setTransparentBackground(false)
       } else {
         setTransparentBackground(true)
       }
     }
-    $(window).scroll(evalBackground)
+    window.addEventListener('scroll', evalBackground)
     evalBackground()
     return () => {
-      $(window).unbind('scroll')
+      window.removeEventListener('scroll', evalBackground)
     }
   }, [pathname])
 
