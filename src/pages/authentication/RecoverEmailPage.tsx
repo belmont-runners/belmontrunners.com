@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import * as PropTypes from 'prop-types'
 import {
   EXPIRED_ACTION_CODE,
   INVALID_ACTION_CODE_INVALID_URL,
   USER_DISABLED_INVALID_URL,
   USER_NOT_FOUND_INVALID_URL
 } from '../../messages'
-import { Redirect, withRouter, RouteComponentProps } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { ROOT } from '../../urls'
 import {
   Button,
@@ -20,8 +19,10 @@ import * as Sentry from '@sentry/browser'
 import { auth } from '../../firebase'
 import {applyActionCode, AuthError, sendPasswordResetEmail } from 'firebase/auth'
 
-// @ts-ignore
-const RecoverEmailPage = ({ location: { state: { info: { data: { email } }, query: { oobCode } } } }: RouteComponentProps) => {
+const RecoverEmailPage = () => {
+  const location = useLocation()
+  // @ts-ignore
+  const { info: { data: { email } }, query: { oobCode } } = location.state
   const [close, setClose] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
@@ -74,7 +75,7 @@ const RecoverEmailPage = ({ location: { state: { info: { data: { email } }, quer
 
   if (close) {
     console.log('redirecting to root', close)
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (
@@ -112,20 +113,4 @@ const RecoverEmailPage = ({ location: { state: { info: { data: { email } }, quer
   )
 }
 
-RecoverEmailPage.propTypes = {
-  location: PropTypes.shape({
-    state: PropTypes.shape({
-      info: PropTypes.shape({
-        data: PropTypes.shape({
-          email: PropTypes.string.isRequired
-        }).isRequired
-      }).isRequired,
-      query: PropTypes.shape({
-        oobCode: PropTypes.string.isRequired
-      }).isRequired
-    }).isRequired
-  }).isRequired
-}
-
-// @ts-ignore
-export default withRouter(RecoverEmailPage)
+export default RecoverEmailPage

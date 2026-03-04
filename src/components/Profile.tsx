@@ -20,19 +20,20 @@ import {
   KeyboardArrowUp as ArrowDropUpIcon
 } from '@mui/icons-material'
 import initials  from 'initials'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { compose } from 'underscore'
 import gravatar from 'gravatar'
 import { getAvatar, IRedisState, IUser } from '../entities/User'
 import { signOut } from 'firebase/auth'
 
-interface Props extends RouteComponentProps {
+interface Props {
   allowUsersPage: boolean
   allowContactsPage: boolean
   userData: any
 }
 
-function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) {
+function Profile({allowUsersPage, allowContactsPage, userData}: Props) {
+  const navigate = useNavigate()
   const anchorRef: any = React.useRef(null)
   const [open, setOpen] = React.useState(false)
   const [isGravatarFetched, setIsGravatarFetched] = useState(false)
@@ -74,7 +75,7 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
     if (anchorRef.current && event && anchorRef.current.contains(event.target)) {
       return
     }
-    url && history.push(url)
+    url && navigate(url)
 
     setOpen(false)
   }
@@ -180,8 +181,7 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
 Profile.propTypes = {
   allowUsersPage: PropTypes.bool.isRequired,
   allowContactsPage: PropTypes.bool.isRequired,
-  userData: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  userData: PropTypes.object.isRequired
 }
 
 const mapStateToProps = ({currentUser: {permissions, firebaseUser, userData}}: IRedisState) => {
@@ -202,7 +202,6 @@ const mapStateToProps = ({currentUser: {permissions, firebaseUser, userData}}: I
 }
 
 export default compose(
-  withRouter,
   LoggedInState({name: 'Profile'}),
   connect(mapStateToProps)
 )(Profile)

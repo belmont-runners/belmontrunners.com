@@ -5,7 +5,7 @@ import { Stepper, Step, StepLabel } from '@mui/material'
 import SignUpStepAuth from './SignUpStepAuth'
 import SignUpStepPayment from './SignUpStepPayment'
 import SignUpStepUserProfile from './SignUpStepUserProfile'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { ROOT } from '../../urls'
 import * as PropTypes from 'prop-types'
 
@@ -78,7 +78,7 @@ function SignUpStepper({ steps }: Props) {
           />
         )
       default:
-        return <Redirect to={ROOT} />
+        return <Navigate to={ROOT} replace />
     }
   }
 

@@ -2,9 +2,7 @@ import { functions } from '../../firebase'
 import React, { useState } from 'react'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { compose } from 'underscore'
 import { Button, Card, CardContent, Typography } from '@mui/material'
-import { withRouter } from 'react-router-dom'
 import DeleteAccountDialog from './DeleteAccountDialog'
 import { UID } from '../../fields'
 import { ROOT } from '../../urls'
@@ -98,7 +96,4 @@ const mapStateToProps = ({ currentUser: { firebaseUser } }: IRedisState) => {
   }
 }
 
-export default compose(
-  withRouter,
-  connect(mapStateToProps)
-)(DeleteAccount)
+export default connect(mapStateToProps)(DeleteAccount)

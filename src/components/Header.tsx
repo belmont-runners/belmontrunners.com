@@ -48,22 +48,20 @@ import {
   STORE,
   USERS, SCHEDULE
 } from '../urls'
-import { RouteComponentProps } from 'react-router'
-import { Link, withRouter } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import $ from 'jquery'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import calc from '../utilities/membershipUtils'
 import { User } from 'firebase/auth'
 import { IRedisState, IUser } from '../entities/User'
-import { compose } from 'underscore'
 import { auth } from '../firebase'
 
 const TOOLBAR_HEIGHT = 72
 const DRAWER_WIDTH = 240
 const BACKGROUND_IMAGE = 'linear-gradient(90deg,#141da2,#9b5cf6)'
 
-interface Props extends RouteComponentProps {
+interface Props {
   isCurrentUserLoaded: boolean,
   firebaseUser: User,
   allowUsersPage: boolean,
@@ -71,7 +69,8 @@ interface Props extends RouteComponentProps {
   isMember: boolean
 }
 
-function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, allowUsersPage, allowContactsPage, isMember }: Props) {
+function Header({ isCurrentUserLoaded, firebaseUser, allowUsersPage, allowContactsPage, isMember }: Props) {
+  const { pathname } = useLocation()
   const [transparentBackground, setTransparentBackground] = useState(true)
   const [showDrawer, setShowDrawer] = useState(false)
 
@@ -427,9 +426,6 @@ Header.propTypes = {
   allowContactsPage: PropTypes.bool.isRequired,
   isCurrentUserLoaded: PropTypes.bool.isRequired,
   firebaseUser: PropTypes.object,
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired
-  }).isRequired,
   isMember: PropTypes.bool.isRequired
 }
 
@@ -444,7 +440,4 @@ const mapStateToProps = ({ currentUser: { isCurrentUserLoaded, firebaseUser, per
   }
 }
 
-export default compose(
-  withRouter,
-  connect(mapStateToProps)
-)(Header)
+export default connect(mapStateToProps)(Header)

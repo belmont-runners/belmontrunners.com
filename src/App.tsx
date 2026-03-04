@@ -6,7 +6,7 @@ import './scss/style.scss'
 import * as PropTypes from 'prop-types'
 import { IFetchCurrentUser, fetchCurrentUser as fetchCurrentUserAction } from './reducers/currentUser'
 import { connect } from 'react-redux'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import SignIn from './pages/sign-in-page/SignInPage'
 import ForgotPasswordPage from './pages/authentication/ForgotPasswordPage'
 import AboutUsPage from './pages/about-us-page/AboutUsPage'
@@ -137,149 +137,23 @@ function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
   return (
     <>
       {/*<Disclaimer />*/}
-      <Switch>
-        <Route
-          exact
-          path={JOIN}
-          render={() => (
-            <>
-              {/*
-  // @ts-ignore */}
-              <Wrapper>
-                {/*
-  // @ts-ignore */}
-                <SignUpPage />
-              </Wrapper>
-            </>
-          )}
-        />
-        <Route
-          exact
-          path={PROFILE}
-          render={() => (
-            <Wrapper>
-              <MyProfilePage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={ACCOUNT}
-          render={() => (
-            <Wrapper>
-              <AccountPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          path={ABOUT_US}
-          render={() => (
-            <Wrapper>
-              <AboutUsPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          path={MEMBERS}
-          render={() => (
-            <Wrapper>
-              <MembersPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={USERS}
-          render={() => (
-            <Wrapper>
-              <UsersPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={CONTACTS}
-          render={() => (
-            <Wrapper>
-              <ContactsPage />
-            </Wrapper>
-          )}
-        />
-        {/*<Route*/}
-        {/*  exact*/}
-        {/*  path={GALLERY}*/}
-        {/*  render={() => (*/}
-        {/*    <Wrapper>*/}
-        {/*      <GalleryPage />*/}
-        {/*    </Wrapper>*/}
-        {/*  )}*/}
-        {/*/>*/}
-        <Route
-          exact
-          path={FAQ}
-          render={() => (
-            <Wrapper>
-              <FaqPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={SIGN_IN}
-          render={() => (
-            <Wrapper inHomePage>
-              <SignIn />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={FORGOT_PASSWORD}
-          render={() => (
-            <Wrapper inHomePage>
-              <ForgotPasswordPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={COMPLETE}
-          render={() => (
-            <Wrapper inHomePage>
-              <Complete />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={RESET_PASSWORD}
-          render={() => (
-            <Wrapper inHomePage>
-              <ResetPasswordPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={RECOVER_EMAIL}
-          render={() => (
-            <Wrapper inHomePage>
-              <RecoverEmailPage />
-            </Wrapper>
-          )}
-        />
-        <Route
-          exact
-          path={VERIFY_EMAIL}
-          render={() => (
-            <Wrapper inHomePage>
-              <VerifyEmailPage />
-            </Wrapper>
-          )}
-        />
-
-        <Route path={ROOT} render={() => <Wrapper inHomePage />} />
-      </Switch>
+      <Routes>
+        <Route path={JOIN} element={<Wrapper><SignUpPage /></Wrapper>} />
+        <Route path={PROFILE} element={<Wrapper><MyProfilePage /></Wrapper>} />
+        <Route path={ACCOUNT} element={<Wrapper><AccountPage /></Wrapper>} />
+        <Route path={ABOUT_US} element={<Wrapper><AboutUsPage /></Wrapper>} />
+        <Route path={MEMBERS} element={<Wrapper><MembersPage /></Wrapper>} />
+        <Route path={USERS} element={<Wrapper><UsersPage /></Wrapper>} />
+        <Route path={CONTACTS} element={<Wrapper><ContactsPage /></Wrapper>} />
+        <Route path={FAQ} element={<Wrapper><FaqPage /></Wrapper>} />
+        <Route path={SIGN_IN} element={<Wrapper inHomePage><SignIn /></Wrapper>} />
+        <Route path={FORGOT_PASSWORD} element={<Wrapper inHomePage><ForgotPasswordPage /></Wrapper>} />
+        <Route path={COMPLETE} element={<Wrapper inHomePage><Complete /></Wrapper>} />
+        <Route path={RESET_PASSWORD} element={<Wrapper inHomePage><ResetPasswordPage /></Wrapper>} />
+        <Route path={RECOVER_EMAIL} element={<Wrapper inHomePage><RecoverEmailPage /></Wrapper>} />
+        <Route path={VERIFY_EMAIL} element={<Wrapper inHomePage><VerifyEmailPage /></Wrapper>} />
+        <Route path={ROOT} element={<Wrapper inHomePage />} />
+      </Routes>
       {
         /* Drift has been disabled.
         

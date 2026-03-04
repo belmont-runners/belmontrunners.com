@@ -20,12 +20,12 @@ import { compose, pick } from 'underscore'
 import UserDetails from '../../components/UserDetails'
 import { ROOT } from '../../urls'
 import { Button } from '@mui/material'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 import { IRedisState, IUserOptionalProps, IUser } from '../../entities/User'
 import { User, updateProfile } from 'firebase/auth';
 
-interface Props extends RouteComponentProps {
+interface Props {
   updateUserData: any,
   firebaseUser: User,
   userData: any,
@@ -37,10 +37,10 @@ function MyProfileForm({
                          updateUserData,
                          firebaseUser,
                          userData,
-                         history,
                          isSubmitting,
                          onSubmitting
                        }: Props) {
+  const navigate = useNavigate()
   const userDataJS: IUser = userData.toJS()
 
   const handleSubmitFunc = async (values: IUserOptionalProps) => {
@@ -53,7 +53,7 @@ function MyProfileForm({
       ])
 
       onSubmitting(false)
-      history.push(ROOT)
+      navigate(ROOT)
     } catch (error) {
       onSubmitting(false)
       Sentry.captureException(error)
@@ -63,7 +63,7 @@ function MyProfileForm({
   }
 
   const handleClose = () => {
-    history.push(ROOT)
+    navigate(ROOT)
   }
 
   const initialValues = pick(
@@ -131,9 +131,6 @@ MyProfileForm.propTypes = {
 // from HOC
   updateUserData: PropTypes.func.isRequired,
 
-// from router-dom
-  history: PropTypes.object.isRequired,
-
   onSubmitting: PropTypes.func.isRequired,
   isSubmitting: PropTypes.bool.isRequired
 }
@@ -153,7 +150,6 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
 
 export default compose(
   UpdateUserData,
-  withRouter,
   connect(
     mapStateToProps,
     mapDispatchToProps

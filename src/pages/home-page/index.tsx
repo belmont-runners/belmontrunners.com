@@ -8,18 +8,18 @@ import Notifications from './Notifications'
 import { Element, scroller, animateScroll } from 'react-scroll'
 import Promotion from './Promotion'
 import moment from 'moment'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { IRedisState } from '../../entities/User'
 import { connect } from 'react-redux'
-import { compose } from 'underscore'
 import * as PropTypes from 'prop-types'
 import {EVENTS_HASH, SUBSCRIBE_HASH} from '../../urls';
 
-interface Props extends RouteComponentProps {
+interface Props {
   isCurrentUserLoaded: boolean
 }
 
-function Home({ location: { hash }, isCurrentUserLoaded }: Props) {
+function Home({ isCurrentUserLoaded }: Props) {
+  const { hash } = useLocation()
 
   useEffect(() => {
     if (!hash) {
@@ -76,7 +76,4 @@ const mapStateToProps = ({ currentUser: { isCurrentUserLoaded } }: IRedisState) 
   }
 }
 
-export default compose(
-  connect(mapStateToProps),
-  withRouter
-)(Home)
+export default connect(mapStateToProps)(Home)
