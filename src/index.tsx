@@ -5,7 +5,8 @@ import configureStore from './store'
 import './index.css'
 import App from './App'
 import { BrowserRouter } from 'react-router-dom'
-import { Elements, StripeProvider } from 'react-stripe-elements'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import ErrorBoundary from './components/ErrorBoundary'
 import * as serviceWorker from './serviceWorker'
 import * as Sentry from '@sentry/browser'
@@ -28,6 +29,7 @@ console.log(
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   console.error('Missing VITE_STRIPE_PUBLIC_KEY')
 } else {
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
   const container = document.getElementById('root')!
   const root = createRoot(container)
   root.render(
@@ -35,12 +37,10 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
       <Provider store={store}>
         <BrowserRouter>
           <ThemeProvider theme={theme}>
-            <StripeProvider apiKey={import.meta.env.VITE_STRIPE_PUBLIC_KEY}>
-              <Elements>
-                {/*@ts-ignore*/}
-                <App />
-              </Elements>
-            </StripeProvider>
+            <Elements stripe={stripePromise}>
+              {/*@ts-ignore*/}
+              <App />
+            </Elements>
           </ThemeProvider>
         </BrowserRouter>
       </Provider>

@@ -1,6 +1,6 @@
 import { functions } from '../../firebase'
 import React, { useEffect, useState } from 'react'
-import { CardElement, injectStripe } from 'react-stripe-elements'
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import SignUpStepperButton from './SignUpStepperButton'
 import './Stripe.scss'
 import * as PropTypes from 'prop-types'
@@ -22,10 +22,6 @@ import {FunctionsError, httpsCallable } from 'firebase/functions'
 const MEMBERSHIP_FEE_ADULT = 20
 const MEMBERSHIP_FEE_KID = 10
 
-interface StripeTokenResponse {
-  error?: { message: string }
-}
-
 interface StripeTransactionResponse {
   id: string
 }
@@ -38,13 +34,11 @@ interface Props {
   onNextClicked: () => void
   youngerThan13: boolean
   membershipExpiresAt?: string
-  stripe: { createToken: (arg0: { type: string }) => StripeTokenResponse }
   updateUserData: IUpdateUserData
 }
 
 function SignUpStepPayment({
                              firebaseUser: { displayName, uid, email },
-                             stripe,
                              isLast,
                              needToPay,
                              totalAmount,
@@ -54,6 +48,8 @@ function SignUpStepPayment({
                              updateUserData
                            }: Props) {
   const navigate = useNavigate()
+  const stripe = useStripe()
+  const elements = useElements()
   useEffect(() => {
     animateScroll.scrollToTop({ duration: 0 })
   }, [])
@@ -63,11 +59,19 @@ function SignUpStepPayment({
   const [confirmationNumber, setConfirmationNumber] = useState('')
 
   const createToken = async () => {
+    if (!stripe || !elements) {
+      return
+    }
     try {
-      const stripeTokenResponse: StripeTokenResponse = await stripe.createToken({ type: 'card' })
+      const cardElement = elements.getElement(CardElement)
+      if (!cardElement) {
+        setErrorMessage('Card element not found')
+        return
+      }
+      const stripeTokenResponse = await stripe.createToken(cardElement)
       console.log('stripeTokenResponse:', JSON.stringify(stripeTokenResponse, null, 2))
       if (stripeTokenResponse.error) {
-        setErrorMessage(stripeTokenResponse.error.message)
+        setErrorMessage(stripeTokenResponse.error.message || 'Payment failed')
         return
       }
       return stripeTokenResponse
@@ -87,11 +91,11 @@ function SignUpStepPayment({
       try {
         const stripeResponse = await createToken()
         console.log('stripeResponse2:', !!stripeResponse)
-        if (!stripeResponse) {
+        if (!stripeResponse || !stripeResponse.token) {
           return
         }
         const body = {
-          ...stripeResponse,
+          token: stripeResponse.token,
           origin: window.origin,
           description: `Annual membership for Belmont Runners. name: ${displayName} email: ${email}  uid: ${uid}`,
           amountInCents: totalAmount * 100
@@ -307,11 +311,6 @@ SignUpStepPayment.propTypes = {
   totalAmount: PropTypes.number.isRequired,
   youngerThan13: PropTypes.bool.isRequired,
 
-  // from HOC
-  stripe: PropTypes.shape({
-    createToken: PropTypes.func.isRequired
-  }).isRequired,
-
   // from parent
   isLast: PropTypes.bool,
   onNextClicked: PropTypes.func.isRequired,
@@ -368,7 +367,6 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
 
 export default compose(
   UpdateUserData,
-  injectStripe,
   LoggedInState(),
   connect(mapStateToProps)
 )(SignUpStepPayment)
