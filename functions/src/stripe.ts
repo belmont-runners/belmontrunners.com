@@ -8,7 +8,9 @@ const {
   info,
   warn,
 } = require("firebase-functions/logger");
-const moment = require('moment')
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 const _ = require('underscore')
 
 interface StripeParams {
@@ -49,7 +51,7 @@ const Stripe = (admin: Admin.app.App, config: StripeConfig) => {
     const { uid } = context.auth
 
     const userDataRef = firestore.doc(`users/${uid}`)
-    const transactionsRef = firestore.doc(`users/${uid}/transactions/${moment().utc().format()}`)
+    const transactionsRef = firestore.doc(`users/${uid}/transactions/${dayjs().utc().format()}`)
     const transactionsLastRef = firestore.doc(`users/${uid}/transactions/latest`)
 
     const {
@@ -113,9 +115,9 @@ const Stripe = (admin: Admin.app.App, config: StripeConfig) => {
     const confirmationNumber = charge.id
 
     let newMembershipExpiresAt
-    const yearFromNow = moment().add(1, 'year')
+    const yearFromNow = dayjs().add(1, 'year')
     if (membershipExpiresAt) {
-      const membershipExpiresAtPlusOneYear = moment(
+      const membershipExpiresAtPlusOneYear = dayjs(
         membershipExpiresAt
       ).add(1, 'year')
       if (membershipExpiresAtPlusOneYear.isBefore(yearFromNow)) {
@@ -130,7 +132,7 @@ const Stripe = (admin: Admin.app.App, config: StripeConfig) => {
     const values = {
       // stripeResponse: JSON.stringify(stripeResponse),
       stripeResponse: { token },
-      paidAt: moment().utc().format(),
+      paidAt: dayjs().utc().format(),
       paidAmount: amount / 100,
       confirmationNumber: confirmationNumber
     }

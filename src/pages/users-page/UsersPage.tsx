@@ -23,7 +23,7 @@ import {
   UID,
   ZIP
 } from '../../fields'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { animateScroll } from 'react-scroll'
 import googleLibPhoneNumber from 'google-libphonenumber'
@@ -93,9 +93,9 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
           [STATE]: data.state || '',
           [ZIP]: data.zip || '',
           [GENDER]: data.gender || '',
-          [DATE_OF_BIRTH]: data.dateOfBirth ? moment(data.dateOfBirth).format(DATE_OF_BIRTH_FORMAT) : '',
-          [CREATED_AT]: data.createdAt ? moment(data.createdAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
-          [MEMBERSHIP_EXPIRES_AT]: data.membershipExpiresAt ? moment(data.membershipExpiresAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
+          [DATE_OF_BIRTH]: data.dateOfBirth ? dayjs(data.dateOfBirth).format(DATE_OF_BIRTH_FORMAT) : '',
+          [CREATED_AT]: data.createdAt ? dayjs(data.createdAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
+          [MEMBERSHIP_EXPIRES_AT]: data.membershipExpiresAt ? dayjs(data.membershipExpiresAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
           [MEMBERSHIP_STATUS]: '',
           [EMAIL_VERIFIED]: !!data.emailVerified,
           [NOT_INTERESTED_IN_BECOMING_A_MEMBER]: !!data.notInterestedInBecomingAMember

@@ -1,6 +1,10 @@
 import Event from './Event'
 import ical from 'ical-generator'
-import * as moment from 'moment-timezone'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const request = require('request')
 const csv = require('csvtojson')
@@ -50,20 +54,20 @@ const GenerateICal = () =>
       events
         .map(event => {
           event.month--
-          event.moment = moment.tz(event, 'America/Los_Angeles')
+          event.moment = dayjs.tz(event, 'America/Los_Angeles')
           return event
         })
         .filter(event => {
           return event.moment.isValid()
         })
-        .sort((a, b) => {
+        .sort((a: EventEX, b: EventEX) => {
           return a.moment.valueOf() - b.moment.valueOf()
         })
         .forEach(event => {
           const isMembersOnly = event['is-members-only-event'] === 'TRUE'
           cal.createEvent({
-            start: event.moment,
-            end: moment(event.moment).add(2, 'hours'),
+            start: event.moment.toDate(),
+            end: dayjs(event.moment).add(2, 'hours').toDate(),
             summary: (isMembersOnly ? '[MEMBERS ONLY] ' : '') + event.subject,
             location: event.where,
             description: getDescription({

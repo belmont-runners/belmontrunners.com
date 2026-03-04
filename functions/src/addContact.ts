@@ -3,7 +3,9 @@ import * as Admin from 'firebase-admin'
 import { https } from 'firebase-functions'
 import { EMAIL, SUBSCRIBERS_ARRAY_KEY } from './fields'
 
-const moment = require('moment')
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 const _ = require('underscore')
 
 const AddContact = (admin: Admin.app.App) => {
@@ -33,7 +35,7 @@ const AddContact = (admin: Admin.app.App) => {
         email,
         isActive: true,
         addedBy: context && context.auth ? context.auth.uid : 'unauthenticated',
-        addedAt: moment()
+        addedAt: dayjs()
           .utc()
           .format(),
         isMember: false // not a member.  Otherwise we would have found it ( see above: _.findWhere(...)
