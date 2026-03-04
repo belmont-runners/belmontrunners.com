@@ -20,16 +20,15 @@ export default function FaqPage() {
       const panelId = `panel${index}`
       return (
           <Accordion key={panelId}
-                     sx={{ marginBottom: '1em' }}
+                     sx={{ marginBottom: '1em', '&::before': { display: 'none' } }}
                      expanded={expanded === panelId}
                      onChange={handleChange(panelId)}>
             <AccordionSummary
                 sx={{
-                  borderBottom: '1px solid rgba(0, 0, 0, .125)',
-                  marginBottom: -1,
                   minHeight: 56,
                   '&.Mui-expanded': {
-                    minHeight: 56
+                    minHeight: 56,
+                    borderBottom: '1px solid rgba(0, 0, 0, .125)',
                   },
                   '& .MuiAccordionSummary-content': {
                     '&.Mui-expanded': {
@@ -40,13 +39,13 @@ export default function FaqPage() {
                 aria-controls={`${panelId}d-content`}
                 id={`${panelId}d-header`}
                 expandIcon={<ExpandMoreIcon/>}>
-              <Typography><ReactMarkdown>{question}</ReactMarkdown></Typography>
+              <Typography component="div"><ReactMarkdown components={{ p: ({children}) => <>{children}</> }}>{question}</ReactMarkdown></Typography>
             </AccordionSummary>
             <AccordionDetails sx={(theme) => ({
               padding: theme.spacing(2),
               backgroundColor: 'rgba(0, 0, 0, .03)'
             })}>
-              <Typography><ReactMarkdown linkTarget={() => '_blank'}>{answer}</ReactMarkdown></Typography>
+              <Typography component="div"><ReactMarkdown components={{ p: ({children}) => <p style={{ margin: '0.25em 0' }}>{children}</p> }} linkTarget={() => '_blank'}>{answer}</ReactMarkdown></Typography>
             </AccordionDetails>
           </Accordion>
       )

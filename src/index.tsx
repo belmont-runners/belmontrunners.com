@@ -12,6 +12,7 @@ import * as serviceWorker from './serviceWorker'
 import * as Sentry from '@sentry/browser'
 import theme from './MuiTheme'
 import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 
 // Sentry init
 Sentry.init({
@@ -37,10 +38,12 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
       <Provider store={store}>
         <BrowserRouter>
           <ThemeProvider theme={theme}>
-            <Elements stripe={stripePromise}>
-              {/*@ts-ignore*/}
-              <App />
-            </Elements>
+            <LegacyThemeProvider theme={theme}>
+              <Elements stripe={stripePromise}>
+                {/*@ts-ignore*/}
+                <App />
+              </Elements>
+            </LegacyThemeProvider>
           </ThemeProvider>
         </BrowserRouter>
       </Provider>

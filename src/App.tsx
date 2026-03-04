@@ -3,7 +3,6 @@ import React, { useEffect } from 'react'
 import Footer from './components/Footer'
 import './App.css'
 import './scss/style.scss'
-import * as PropTypes from 'prop-types'
 import { IFetchCurrentUser, fetchCurrentUser as fetchCurrentUserAction } from './reducers/currentUser'
 import { connect } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
@@ -31,7 +30,6 @@ import {
   VERIFY_EMAIL
 } from './urls'
 import UsersPage from './pages/users-page/UsersPage'
-// import Drift from './components/Drift'
 import * as Sentry from '@sentry/browser'
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage'
 import Complete from './pages/authentication/Complete'
@@ -46,9 +44,8 @@ import LogRocket from 'logrocket'
 import FaqPage from './pages/faq-page/FaqPage'
 import { IRedisState } from './entities/User'
 import ErrorBoundary from './components/ErrorBoundary'
-// import Disclaimer from './components/Disclaimer'
 
-const setupLogRocketReact = require('logrocket-react')
+import setupLogRocketReact from 'logrocket-react'
 
 interface WrapperProps {
   inHomePage?: boolean
@@ -70,18 +67,12 @@ function Wrapper(props: WrapperProps = {}) {
   )
 }
 
-Wrapper.propTypes = {
-  inHomePage: PropTypes.bool,
-  children: PropTypes.element
-}
-
 interface Props {
   fetchCurrentUser: IFetchCurrentUser
-  isCurrentUserLoaded: boolean
   firebaseUser: User
 }
 
-function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
+function App({ fetchCurrentUser, firebaseUser }: Props) {
   useEffect(() => {
     LogRocket.init('qv4xmc/belmont-runners')
     setupLogRocketReact(LogRocket)
@@ -127,16 +118,8 @@ function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseUser])
 
-  const enableCampaigns = window.innerHeight >= 600
-  console.log(
-    'enableCampaigns:',
-    enableCampaigns,
-    'window.innerHeight:',
-    window.innerHeight
-  )
   return (
     <>
-      {/*<Disclaimer />*/}
       <Routes>
         <Route path={JOIN} element={<Wrapper><SignUpPage /></Wrapper>} />
         <Route path={PROFILE} element={<Wrapper><MyProfilePage /></Wrapper>} />
@@ -154,42 +137,16 @@ function App({ fetchCurrentUser, isCurrentUserLoaded, firebaseUser }: Props) {
         <Route path={VERIFY_EMAIL} element={<Wrapper inHomePage><VerifyEmailPage /></Wrapper>} />
         <Route path={ROOT} element={<Wrapper inHomePage />} />
       </Routes>
-      {
-        /* Drift has been disabled.
-        
-        isCurrentUserLoaded && (
-        <Drift
-          appId="fxagpvvrufk4"
-          userId={firebaseUser ? firebaseUser.uid : ''}
-          attributes={{
-            email: firebaseUser && firebaseUser.email ? firebaseUser.email : '',
-            avatar_url: firebaseUser && firebaseUser.photoURL ? firebaseUser.photoURL : '',
-            displayName: firebaseUser && firebaseUser.displayName ? firebaseUser.displayName : ''
-          }}
-          config={{
-            enableCampaigns
-          }}
-        />
-      )
-      */
-      }
     </>
   )
-}
-
-App.propTypes = {
-  fetchCurrentUser: PropTypes.func.isRequired,
-  firebaseUser: PropTypes.object,
-  isCurrentUserLoaded: PropTypes.bool.isRequired
 }
 
 const mapDispatchToProps = {
   fetchCurrentUser: fetchCurrentUserAction
 }
 
-const mapStateToProps = ({ currentUser: { firebaseUser, isCurrentUserLoaded } }: IRedisState) => {
+const mapStateToProps = ({ currentUser: { firebaseUser } }: IRedisState) => {
   return {
-    isCurrentUserLoaded,
     firebaseUser
   }
 }

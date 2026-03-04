@@ -17,8 +17,9 @@ import {
 import DatePickerWrapper from './DatePickerWrapper'
 import * as PropTypes from 'prop-types'
 import { mustBeNumber, required, birthday, composeValidators } from '../utilities/formValidators'
+import statesData from './states_titlecase.json'
 
-const states: [{ name: string, abbreviation: string }] = require('./states_titlecase.json')
+const states: { name: string, abbreviation: string }[] = statesData
 
 function UserDetails({ showDisplayName = false }) {
   const spacer = <div style={{ flexGrow: 0, flexShrink: 0, width: 20 }} />

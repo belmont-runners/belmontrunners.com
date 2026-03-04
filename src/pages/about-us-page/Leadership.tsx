@@ -1,5 +1,6 @@
 import React from 'react'
 import _ from 'underscore'
+import teamMembers from './teamMembers.json'
 
 interface ITeamMember {
   name: string
@@ -15,7 +16,7 @@ interface ITeamMember {
   website?: string
 }
 
-const leadership: ITeamMember[] = _.shuffle(require('./teamMembers.json'))
+const leadership: ITeamMember[] = _.shuffle(teamMembers as ITeamMember[])
 
 const getTeam = () => {
   return leadership.map((member, index) => {

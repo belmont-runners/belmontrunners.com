@@ -20,7 +20,7 @@ Table of Content:
 09/ project
 10/ price
 11/ team
-12/ blog
+12/ (removed)
 13/ video
 14/ features
 15/ career
@@ -43,10 +43,6 @@ Table of Content:
 
 /*----------------------------------------------------*/
 @import "breadcrumb";
-/*---------------------------------------------------- */
-
-/*----------------------------------------------------*/
-@import "blog";
 /*---------------------------------------------------- */
 
 /*----------------------------------------------------*/
@@ -83,4 +79,4 @@ Table of Content:
 
 @import "responsive";
 
-@import "react-image-gallery/styles/scss/image-gallery.scss";
+@import "react-image-gallery/styles/image-gallery.css";

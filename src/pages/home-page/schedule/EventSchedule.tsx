@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
+import objectSupport from 'dayjs/plugin/objectSupport'
+dayjs.extend(objectSupport)
 import CalendarSelector from './CalendarSelector'
 import ExpendMoreIcon from '@mui/icons-material/ExpandMore'
 import { useMediaQuery, useTheme, IconButton } from '@mui/material'
