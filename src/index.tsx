@@ -10,7 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import * as serviceWorker from './serviceWorker'
 import * as Sentry from '@sentry/browser'
 import theme from './MuiTheme'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider } from '@mui/material/styles'
 
 // Sentry init
 Sentry.init({
@@ -34,14 +34,14 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
     <ErrorBoundary>
       <Provider store={store}>
         <ConnectedRouter history={history}>
-          <MuiThemeProvider theme={theme}>
+          <ThemeProvider theme={theme}>
             <StripeProvider apiKey={import.meta.env.VITE_STRIPE_PUBLIC_KEY}>
               <Elements>
                 {/*@ts-ignore*/}
                 <App />
               </Elements>
             </StripeProvider>
-          </MuiThemeProvider>
+          </ThemeProvider>
         </ConnectedRouter>
       </Provider>
     </ErrorBoundary>

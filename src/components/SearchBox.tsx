@@ -1,5 +1,5 @@
-import { IconButton, InputBase, makeStyles, Paper } from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search'
+import { IconButton, InputBase, Paper } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
 import React from 'react'
 import * as PropTypes from 'prop-types'
 
@@ -10,25 +10,6 @@ interface Props {
 }
 
 function SearchBox({ onChange, placeholder = 'Search', children }: Props) {
-  const useStyles = makeStyles(() => ({
-    paper: {
-      // margin: '20px 10px',
-      padding: '2px 4px',
-      display: 'flex',
-      alignItems: 'center',
-      maxWidth: 500,
-      flexGrow: 1
-    },
-    input: {
-      marginLeft: 8,
-      flexGrow: 1
-    },
-    icon: {
-      padding: 10
-    }
-  }))
-  const classes = useStyles()
-
   function handleSearch(event: any) {
     onChange(event.target.value)
   }
@@ -36,13 +17,19 @@ function SearchBox({ onChange, placeholder = 'Search', children }: Props) {
   //    {/*<div className='d-flex justify-content-center row'>*/}
   return (
     <div>
-      <Paper className={`${classes.paper} mx-auto my-4`}>
+      <Paper className="mx-auto my-4" sx={{
+        padding: '2px 4px',
+        display: 'flex',
+        alignItems: 'center',
+        maxWidth: 500,
+        flexGrow: 1
+      }}>
         <InputBase
-          className={classes.input}
+          sx={{ marginLeft: 1, flexGrow: 1 }}
           placeholder={placeholder}
           onChange={handleSearch}
         />
-        <IconButton className={classes.icon} aria-label="Search">
+        <IconButton sx={{ padding: '10px' }} aria-label="Search">
           <SearchIcon />
         </IconButton>
       </Paper>

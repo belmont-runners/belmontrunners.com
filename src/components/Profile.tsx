@@ -8,18 +8,17 @@ import {
   MenuList,
   Paper,
   Popper
-} from '@material-ui/core'
+} from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { ACCOUNT, CONTACTS, PROFILE, ROOT, USERS } from '../urls'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import LoggedInState from './HOC/LoggedInState'
 import { Map as IMap } from 'immutable'
-import { makeStyles } from '@material-ui/core/styles'
 import {
   KeyboardArrowDown as ArrowDropDownIcon,
   KeyboardArrowUp as ArrowDropUpIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import initials  from 'initials'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { compose } from 'underscore'
@@ -34,32 +33,6 @@ interface Props extends RouteComponentProps {
 }
 
 function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) {
-  const useStyles = makeStyles({
-    avatarWrapper: {
-      alignItems: 'center',
-      cursor: 'pointer',
-      display: 'flex'
-    },
-    avatar: {
-      cursor: 'pointer',
-      width: 40,
-      height: 40,
-      backgroundColor: 'rgb(98, 71, 234)',
-      fontSize: 13.33333
-    },
-    carrot: {
-      color: '#fff',
-      height: 24,
-      width: 24
-    },
-    popper: {
-      zIndex: 10000
-    },
-    menuItem: {
-      padding: '10px 40px'
-    }
-  })
-  const classes = useStyles()
   const anchorRef: any = React.useRef(null)
   const [open, setOpen] = React.useState(false)
   const [isGravatarFetched, setIsGravatarFetched] = useState(false)
@@ -118,11 +91,17 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
   return (
     <>
       <div
-        className={classes.avatarWrapper}
+        style={{ alignItems: 'center', cursor: 'pointer', display: 'flex' }}
         ref={anchorRef}
         onClick={handleToggle}
       >
-        <Avatar className={classes.avatar} src={avatarUrl}>
+        <Avatar sx={{
+          cursor: 'pointer',
+          width: 40,
+          height: 40,
+          backgroundColor: 'rgb(98, 71, 234)',
+          fontSize: 13.33333
+        }} src={avatarUrl}>
           {
             !avatarUrl &&
             // @ts-ignore
@@ -131,9 +110,9 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
         </Avatar>
         <div>
           {open ? (
-            <ArrowDropUpIcon className={classes.carrot} />
+            <ArrowDropUpIcon sx={{ color: '#fff', height: 24, width: 24 }} />
           ) : (
-            <ArrowDropDownIcon className={classes.carrot} />
+            <ArrowDropDownIcon sx={{ color: '#fff', height: 24, width: 24 }} />
           )}
         </div>
       </div>
@@ -142,7 +121,7 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
         anchorEl={anchorRef.current}
         transition
         placement="bottom-end"
-        className={classes.popper}
+        sx={{ zIndex: 10000 }}
       >
         {({TransitionProps}) => (
           <Grow {...TransitionProps} style={{transformOrigin: 'center top'}}>
@@ -151,20 +130,20 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
                 <MenuList>
                   <MenuItem
                     onClick={handleClose(PROFILE)}
-                    className={classes.menuItem}
+                    sx={{ padding: '10px 40px' }}
                   >
                     Profile
                   </MenuItem>
                   <MenuItem
                     onClick={handleClose(ACCOUNT)}
-                    className={classes.menuItem}
+                    sx={{ padding: '10px 40px' }}
                   >
                     Account
                   </MenuItem>
                   {allowUsersPage && (
                     <MenuItem
                       onClick={handleClose(USERS)}
-                      className={classes.menuItem}
+                      sx={{ padding: '10px 40px' }}
                     >
                       Users
                     </MenuItem>
@@ -172,7 +151,7 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
                   {allowContactsPage && (
                     <MenuItem
                       onClick={handleClose(CONTACTS)}
-                      className={classes.menuItem}
+                      sx={{ padding: '10px 40px' }}
                     >
                       Contacts
                     </MenuItem>
@@ -184,7 +163,7 @@ function Profile({allowUsersPage, allowContactsPage, userData, history}: Props) 
                         handleClose(ROOT)(event)
                       }
                     )}
-                    className={classes.menuItem}
+                    sx={{ padding: '10px 40px' }}
                   >
                     Sign out
                   </MenuItem>

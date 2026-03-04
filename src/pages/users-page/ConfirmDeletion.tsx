@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Snackbar } from '@material-ui/core'
+import { Button, Snackbar } from '@mui/material'
 import * as PropTypes from 'prop-types'
 import { DISPLAY_NAME, EMAIL, UID } from '../../fields'
 import { IUser } from '../../entities/User'

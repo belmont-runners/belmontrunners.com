@@ -19,7 +19,7 @@ import { sendEmailVerification as sendEmailVerificationAction } from '../../redu
 import { compose, pick } from 'underscore'
 import UserDetails from '../../components/UserDetails'
 import { ROOT } from '../../urls'
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 import { IRedisState, IUserOptionalProps, IUser } from '../../entities/User'
@@ -97,7 +97,7 @@ function MyProfileForm({
                   <Button
                     className="mr-4"
                     variant="contained"
-                    color="default"
+                    color="inherit"
                     fullWidth
                     type="button"
                     onClick={() => handleClose()}

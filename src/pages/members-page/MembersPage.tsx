@@ -8,11 +8,10 @@ import {
   Avatar,
   Chip,
   CircularProgress,
-  makeStyles,
   Paper,
   Snackbar
-} from '@material-ui/core'
-import DirectionsRun from '@material-ui/icons/DirectionsRun'
+} from '@mui/material'
+import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import FuzzySearch from 'fuzzy-search'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import UserProfile from './UserProfile'
@@ -37,13 +36,6 @@ function MembersPage({
   userData
 }: Props) {
   const userDataJS: IUser = userData.toJS()
-  const useStyles = makeStyles(() => ({
-    chipAvatar: {
-      width: 32,
-      height: 32
-    }
-  }))
-  const classes = useStyles()
 
   const [isLoading, setIsLoading] = useState(true)
   const [showError, setShowError] = useState(false)
@@ -160,7 +152,7 @@ function MembersPage({
         <Chip
           className="my-1 mx-1"
           avatar={
-            <Avatar className={classes.chipAvatar} src={avatarUrl}>
+            <Avatar sx={{ width: 32, height: 32 }} src={avatarUrl}>
               {!avatarUrl && <DirectionsRun />}
             </Avatar>
           }

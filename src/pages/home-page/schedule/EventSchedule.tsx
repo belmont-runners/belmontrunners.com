@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import moment, { Moment } from 'moment'
 import CalendarSelector from './CalendarSelector'
-import ExpendMoreIcon from '@material-ui/icons/ExpandMore'
-import { useMediaQuery, useTheme, IconButton } from '@material-ui/core'
+import ExpendMoreIcon from '@mui/icons-material/ExpandMore'
+import { useMediaQuery, useTheme, IconButton } from '@mui/material'
 
 import { firestore } from '../../../firebase'
 import { doc, getDoc } from 'firebase/firestore'

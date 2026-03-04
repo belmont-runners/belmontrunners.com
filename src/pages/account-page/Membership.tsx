@@ -1,7 +1,7 @@
 import React from 'react'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Card, CardContent, Typography } from '@material-ui/core'
+import { Card, CardContent, Typography } from '@mui/material'
 import { IRedisState, IUser } from '../../entities/User'
 import calc from '../../utilities/membershipUtils'
 import { compose } from 'underscore'

@@ -10,8 +10,8 @@ import {
   IconButton,
   Snackbar,
   Typography
-} from '@material-ui/core'
-import { Close as CloseIcon } from '@material-ui/icons'
+} from '@mui/material'
+import { Close as CloseIcon } from '@mui/icons-material'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 import {
   linkToFacebook,

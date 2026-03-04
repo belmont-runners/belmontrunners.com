@@ -7,13 +7,13 @@ import {
   Paper,
   Snackbar,
   Typography
-} from '@material-ui/core'
+} from '@mui/material'
 import FuzzySearch from 'fuzzy-search'
 import {
   Close as CloseIcon,
   FileCopy as CopyIcon,
   SaveAlt as SaveIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import * as PropTypes from 'prop-types'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { connect } from 'react-redux'
@@ -224,7 +224,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
         <div className="d-flex flex-row align-items-center">
           <span onClick={() => setShowSubscribers(!showSubscribers)}>
             <Checkbox checked={showSubscribers} />
-            <Chip label="Subscribers" color="default" />
+            <Chip label="Subscribers" />
           </span>
           <Help />
         </div>

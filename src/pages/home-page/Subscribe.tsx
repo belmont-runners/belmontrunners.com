@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import * as EmailValidator from 'email-validator'
 import * as Sentry from '@sentry/browser'
 import { httpsCallable } from 'firebase/functions'
-import { IconButton, Snackbar } from '@material-ui/core'
-import { Close as CloseIcon } from '@material-ui/icons'
+import { IconButton, Snackbar } from '@mui/material'
+import { Close as CloseIcon } from '@mui/icons-material'
 import { functions, auth } from '../../firebase';
 import { RecaptchaVerifier } from 'firebase/auth'
 

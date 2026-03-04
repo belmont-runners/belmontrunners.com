@@ -8,8 +8,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle
-} from '@material-ui/core'
-import { TextField } from 'final-form-material-ui'
+} from '@mui/material'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import { ROOT } from '../../urls'
 import * as PropTypes from 'prop-types'
 import { RESET_PASSWORD_SUCCESS } from '../../messages'

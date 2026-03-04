@@ -1,8 +1,8 @@
 import React from 'react'
-import { Select, TextField } from 'final-form-material-ui'
-import moment from 'moment'
+import { Select, TextField } from './FinalFormMuiAdapters'
+import dayjs from 'dayjs'
 import { Field } from 'react-final-form'
-import { MenuItem } from '@material-ui/core'
+import MenuItem from '@mui/material/MenuItem'
 import {
   ADDRESS1,
   ADDRESS2,
@@ -149,7 +149,7 @@ function UserDetails({ showDisplayName = false }) {
             if (!value) {
               return null
             }
-            return moment(value, 'YYYY-MM-DD')
+            return dayjs(value, 'YYYY-MM-DD')
           }}
           parse={value => {
             // to json

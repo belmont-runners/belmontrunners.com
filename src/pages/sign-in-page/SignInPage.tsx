@@ -2,7 +2,7 @@ import { auth } from '../../firebase'
 import * as PropTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom'
-import { TextField } from 'final-form-material-ui'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import {
   INVALID_EMAIL,
   POPUP_CLOSED_BEFORE_COMPLETION,
@@ -15,7 +15,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle
-} from '@material-ui/core'
+} from '@mui/material'
 import { FORGOT_PASSWORD, ROOT } from '../../urls'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import * as Sentry from '@sentry/browser'

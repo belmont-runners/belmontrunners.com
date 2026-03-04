@@ -8,8 +8,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle
-} from '@material-ui/core'
-import { TextField } from 'final-form-material-ui'
+} from '@mui/material'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import { ROOT } from '../../urls'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { Field, Form } from 'react-final-form'
