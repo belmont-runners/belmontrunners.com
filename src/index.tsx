@@ -17,7 +17,7 @@ import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 // Sentry init
 Sentry.init({
   dsn: 'https://38a18be9353a4b6ba6d58b6be978d285@sentry.io/1469731',
-  debug: process.env.NODE_ENV !== 'production'
+  debug: import.meta.env.DEV
 })
 
 const store = configureStore()

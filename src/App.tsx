@@ -92,26 +92,17 @@ function App({ fetchCurrentUser, firebaseUser }: Props) {
         LogRocket.identify(firebaseUser.uid, userTraits)
 
         LogRocket.getSessionURL(sessionURL => {
-          Sentry.configureScope(scope => {
-            const user: Sentry.User = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email || undefined,
-              displayName: firebaseUser.displayName
-            }
-            scope.setUser(user)
-            scope.setExtra('sessionURL', sessionURL)
+          Sentry.setUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email || undefined,
+            displayName: firebaseUser.displayName
           })
+          Sentry.setExtra('sessionURL', sessionURL)
         })
       } else {
         LogRocket.getSessionURL(sessionURL => {
-          Sentry.configureScope(scope => {
-            scope.setUser({
-              email: undefined,
-              displayName: undefined,
-              uid: undefined
-            })
-            scope.setExtra('sessionURL', sessionURL)
-          })
+          Sentry.setUser(null)
+          Sentry.setExtra('sessionURL', sessionURL)
         })
       }
     }
