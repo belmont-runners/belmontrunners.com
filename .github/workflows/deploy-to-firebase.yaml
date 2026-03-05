@@ -30,6 +30,12 @@ jobs:
       - uses: w9jds/setup-firebase@main
         with:
           tools-version: 11.18.0
-          firebase_token: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Authenticate to Google Cloud
+        run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > $RUNNER_TEMP/gcloud-key.json
       - run: firebase deploy --force --only hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcloud-key.json
       - run: firebase deploy --force --only functions
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcloud-key.json
+      
