@@ -1,7 +1,7 @@
 import * as Admin from "firebase-admin";
-import { https } from "firebase-functions";
+import { https } from "firebase-functions/v1";
 import { User } from "./User";
-import { UserRecord } from "firebase-functions/lib/providers/auth";
+import { UserRecord } from "firebase-admin/auth";
 
 const moment = require("moment");
 

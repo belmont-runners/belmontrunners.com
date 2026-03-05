@@ -1,6 +1,6 @@
 import Contact from './Contact'
 import * as Admin from 'firebase-admin'
-import { https } from 'firebase-functions'
+import { https } from 'firebase-functions/v1'
 import { EMAIL, SUBSCRIBERS_ARRAY_KEY } from './fields'
 
 import dayjs from 'dayjs'

@@ -1,4 +1,4 @@
-import { https } from 'firebase-functions'
+import { https } from 'firebase-functions/v1'
 import * as Admin from 'firebase-admin'
 import { User, Visibility, VisibilityEnum } from './User'
 import calc from './membershipUtils'

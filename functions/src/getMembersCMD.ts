@@ -2,7 +2,7 @@
 import * as Admin from 'firebase-admin'
 import getMembers from './getMembers'
 import { User } from './User'
-import { https } from 'firebase-functions'
+import { https } from 'firebase-functions/v1'
 
 const serviceAccount = require('../serviceAccountKey.json')
 
