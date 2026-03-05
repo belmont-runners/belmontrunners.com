@@ -20,7 +20,7 @@
     "email-validator": "^2.0.4",
     "export-to-csv": "^0.2.1",
     "final-form": "^4.20.6",
-    "firebase": "^9.6.9",
+    "firebase": "^12.9.0",
     "fuzzy-search": "^3.2.1",
     "google-libphonenumber": "^3.2.27",
     "gravatar": "^1.8.2",
