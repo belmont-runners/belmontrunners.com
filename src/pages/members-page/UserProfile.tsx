@@ -161,7 +161,7 @@ function UserProfile({ onClose, user, userData, updateUserData, firebaseUser }: 
           id="customized-menu"
           anchorEl={refs && refs[label]}
           keepMounted
-          open={openMenus && openMenus[label]}
+          open={!!(openMenus && openMenus[label])}
           onClose={handleClose}
         >
           <MenuItem

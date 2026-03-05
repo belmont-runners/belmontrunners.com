@@ -22,7 +22,6 @@ import {
 } from '../../messages'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import * as Sentry from '@sentry/browser'
 import { Field, Form } from 'react-final-form'
 import { PASSWORD } from '../../fields'
 import {
@@ -64,7 +63,7 @@ function ChangeEmailDialog({ firebaseUser, sendEmailVerification, onClose }: Pro
 
     if (!firebaseUser.email) {
       const message = 'current user does not have an email.'
-      Sentry.captureException(message)
+      console.error(message)
       console.error(message)
       return
     }
@@ -83,7 +82,7 @@ function ChangeEmailDialog({ firebaseUser, sendEmailVerification, onClose }: Pro
 
         setIsSuccess(true)
       } catch (error) {
-        Sentry.captureException(error)
+        console.error(error)
         console.error(error)
 
         const { code, message } = error as AuthError
@@ -95,7 +94,7 @@ function ChangeEmailDialog({ firebaseUser, sendEmailVerification, onClose }: Pro
             setErrorMessage(EMAIL_ALREADY_IN_USE)
             return
           default:
-            Sentry.captureException(error)
+            console.error(error)
             console.error('ChangeEmail.', 'code:', code, 'message:', message)
             setErrorMessage(message)
         }
@@ -105,7 +104,7 @@ function ChangeEmailDialog({ firebaseUser, sendEmailVerification, onClose }: Pro
       if (code === 'auth/wrong-password') {
         setErrorMessage(WRONG_PASSWORD)
       } else {
-        Sentry.captureException(error)
+        console.error(error)
         setErrorMessage(message)
       }
     } finally {

@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/browser'
 import { fromJS } from 'immutable'
 import { ICurrentUser, IUserPermissions, IRedisState, IUser, IUserOptionalProps } from '../entities/User'
 import { auth, firestore } from '../firebase'
@@ -122,7 +121,7 @@ export const fetchCurrentUser: IFetchCurrentUser = () => {
                 }
               }
             } catch (error) {
-              Sentry.captureException(error)
+              console.error(error)
               console.error('email verification.', error)
             }
             console.log(
@@ -139,7 +138,7 @@ export const fetchCurrentUser: IFetchCurrentUser = () => {
             await updateUserData(values, { merge: true })(dispatch, getState)
           } catch (error) {
             console.error('error while initializing firebase user.', error)
-            Sentry.captureException(error)
+            console.error(error)
           }
         }
       })
@@ -192,7 +191,7 @@ export const updateUserData: IUpdateUserData = (values: IUserOptionalProps, opti
         context
       })
     } catch (error) {
-      Sentry.captureException(error)
+      console.error(error)
       console.error(error)
       dispatch({
         type: USER_DATA_UPDATE_FAILURE,

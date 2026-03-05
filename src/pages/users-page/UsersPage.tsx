@@ -30,7 +30,6 @@ import googleLibPhoneNumber from 'google-libphonenumber'
 import _, { compose } from 'underscore'
 import { connect } from 'react-redux'
 import { Avatar, Checkbox, IconButton } from '@mui/material'
-import * as Sentry from '@sentry/browser'
 import { getAvatar, IRedisState, IUser } from '../../entities/User'
 import { ROOT } from '../../urls'
 import { Navigate } from 'react-router-dom'
@@ -115,7 +114,7 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
             throw new Error(`Unknown membership status.  calc: ${JSON.stringify(calc1)}`)
           }
         } catch (error) {
-          Sentry.captureException(error)
+          console.error(error)
           console.error(error)
         }
 
@@ -250,14 +249,14 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
                     await handleNotInterested(userData, isChecked)
                     updateValue(isChecked, undefined, undefined)
                   } catch (error) {
-                    Sentry.captureException(error)
+                    console.error(error)
                     console.error(error)
                   }
                 }}
               />
             )
           } catch (error) {
-            Sentry.captureException(error)
+            console.error(error)
             console.error(error)
             return value
           }
@@ -337,7 +336,7 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
               setRowToDelete(undefined)
               await loadMembers()
             } catch (error) {
-              Sentry.captureException(error)
+              console.error(error)
               console.log('Deletion failed.',
                 'error:', error)
             } finally {

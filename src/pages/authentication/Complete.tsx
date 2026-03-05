@@ -17,7 +17,6 @@ import {
   DialogContentText,
   DialogTitle
 } from '@mui/material'
-import * as Sentry from '@sentry/browser'
 import { AuthError, checkActionCode } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 
@@ -44,7 +43,7 @@ const Complete = () => {
         setErrorMessage(USER_NOT_FOUND_INVALID_URL)
         break
       default:
-        Sentry.captureException(error)
+        console.error(error)
         console.error('in Complete', 'code:', code, 'message:', message)
         setErrorMessage(message)
     }

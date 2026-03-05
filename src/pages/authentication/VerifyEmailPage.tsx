@@ -16,7 +16,6 @@ import {
   DialogContentText,
   DialogTitle
 } from '@mui/material'
-import * as Sentry from '@sentry/browser'
 import {applyActionCode, AuthError } from 'firebase/auth'
 
 const VerifyEmailPage = () => {
@@ -43,7 +42,7 @@ const VerifyEmailPage = () => {
         setErrorMessage(USER_NOT_FOUND_INVALID_URL)
         return
       default:
-        Sentry.captureException(error)
+        console.error(error)
         console.error('RecoverEmailPage', 'code:', code, 'message:', message)
         setErrorMessage(message)
     }

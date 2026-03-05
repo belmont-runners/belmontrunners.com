@@ -9,7 +9,7 @@ import got from 'got'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
-const gravatar = require('gravatar')
+import md5 from 'md5'
 
 export interface Auth2UsersOptions {
   syncGravatar: boolean
@@ -53,10 +53,8 @@ export default class Auth2Users {
 
       if (options.syncGravatar) {
         let hasGravatar = false
-        const gravatarUrl = gravatar.url(email, {
-          protocol: 'https',
-          default: '404'
-        })
+        const hash = md5(email!.trim().toLowerCase())
+        const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?default=404`
         try {
           await got.get(gravatarUrl)
           info('found gravatar.', { gravatarUrl })
@@ -64,7 +62,7 @@ export default class Auth2Users {
         } catch (err) {
           info('Error while fetching gravatar.', { gravatarUrl, error: err })
         }
-        data.gravatarUrl = hasGravatar ? gravatarUrl : null
+        data.gravatarUrl = hasGravatar ? gravatarUrl : undefined
       }
 
       await userRef.set(data, { merge: true })

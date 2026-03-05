@@ -14,7 +14,6 @@ import { ROOT } from '../../urls'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { Field, Form } from 'react-final-form'
 import { EMAIL } from '../../fields'
-import * as Sentry from '@sentry/browser'
 import { auth } from '../../firebase'
 import { required, isEmail, composeValidators } from '../../utilities/formValidators'
 import { AuthError, sendPasswordResetEmail } from 'firebase/auth'
@@ -35,7 +34,7 @@ const ForgotPasswordPage = () => {
         setErrorMessage(INVALID_EMAIL)
         break
       default:
-        Sentry.captureException(error)
+        console.error(error)
         console.error('forgotPasswordPage', 'code:', code, 'message:', message)
         setErrorMessage(message)
     }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import * as EmailValidator from 'email-validator'
-import * as Sentry from '@sentry/browser'
 import { httpsCallable } from 'firebase/functions'
 import { IconButton, Snackbar } from '@mui/material'
 import { Close as CloseIcon } from '@mui/icons-material'
@@ -77,7 +76,7 @@ My email address is: ${email}`
           setMessageLevel('')
         }, 5000)
       } catch (error) {
-        Sentry.captureException(error)
+        console.error(error)
         console.error('error response:', error)
         setMessage('Oops, something went wrong.  Please try again later.')
         setMessageLevel('alert-danger')

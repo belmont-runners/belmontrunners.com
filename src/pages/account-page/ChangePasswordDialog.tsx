@@ -14,7 +14,6 @@ import {
 } from '../../messages'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import * as Sentry from '@sentry/browser'
 import { PASSWORD } from '../../fields'
 import { Field, Form } from 'react-final-form'
 import { IRedisState } from '../../entities/User'
@@ -60,7 +59,7 @@ function ChangePasswordDialog({ onClose, firebaseUser }: Props) {
         setIsSuccess(true)
       } catch (error) {
         const { code, message } = error as AuthError
-        Sentry.captureException(error)
+        console.error(error)
         console.error(
           'currentUser.updatePassword.',
           'code:',
@@ -75,7 +74,7 @@ function ChangePasswordDialog({ onClose, firebaseUser }: Props) {
       if (code === 'auth/wrong-password') {
         setErrorMessage(WRONG_PASSWORD)
       } else {
-        Sentry.captureException(error)
+        console.error(error)
         console.error(
           'currentUser.reauthenticateWithCredential.',
           'code:',
