@@ -116,7 +116,7 @@ function App({ fetchCurrentUser, firebaseUser }: Props) {
         <Route path={PROFILE} element={<Wrapper><MyProfilePage /></Wrapper>} />
         <Route path={ACCOUNT} element={<Wrapper><AccountPage /></Wrapper>} />
         <Route path={ABOUT_US} element={<Wrapper><AboutUsPage /></Wrapper>} />
-        <Route path={MEMBERS} element={<Wrapper><MembersPage /></Wrapper>} />
+        <Route path={`${MEMBERS}/*`} element={<Wrapper><MembersPage /></Wrapper>} />
         <Route path={USERS} element={<Wrapper><UsersPage /></Wrapper>} />
         <Route path={CONTACTS} element={<Wrapper><ContactsPage /></Wrapper>} />
         <Route path={FAQ} element={<Wrapper><FaqPage /></Wrapper>} />
