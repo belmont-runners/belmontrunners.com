@@ -1,7 +1,7 @@
 import * as PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import initials from 'initials'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import {
   ADDRESS1,
   ADDRESS2,
@@ -26,7 +26,7 @@ import {
   Home as HomeIcon,
   Person as PersonIcon,
   Smartphone as SmartPhoneIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import {
   Avatar,
   IconButton,
@@ -38,8 +38,8 @@ import {
   SnackbarContent,
   SwipeableDrawer,
   useMediaQuery
-} from '@material-ui/core'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+} from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import { connect } from 'react-redux'
 import { Map as IMap } from 'immutable'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
@@ -78,25 +78,9 @@ function UserProfile({ onClose, user, userData, updateUserData, firebaseUser }: 
   const AVATAR_WIDTH = 100
   const AVATAR_HEIGHT = 100
 
-  const drawerPaper: { width?: string, minWidth?: number } = {}
-  isSmallDevice && (drawerPaper.width = '100%')
-  !isSmallDevice && (drawerPaper.minWidth = DRAWER_WIDTH)
-
-  const useStyles = makeStyles({
-    avatar: {
-      width: AVATAR_WIDTH,
-      height: AVATAR_HEIGHT,
-      backgroundColor: theme.palette.primary.main
-    },
-    drawer: {
-      flexShrink: 0
-    },
-    drawerPaper,
-    root: {
-      fontSize: 18
-    }
-  })
-  const classes = useStyles()
+  const drawerPaperSx: { width?: string, minWidth?: number } = {}
+  isSmallDevice && (drawerPaperSx.width = '100%')
+  !isSmallDevice && (drawerPaperSx.minWidth = DRAWER_WIDTH)
 
   const [refs, setRefs] = useState<{ [key: string]: HTMLElement | null }>({})
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({})
@@ -242,10 +226,8 @@ function UserProfile({ onClose, user, userData, updateUserData, firebaseUser }: 
         // nothing to do here but this prop is still set as required.
       }}
       onClose={function() {onClose()}}
-      className={classes.drawer}
-      classes={{
-        paper: classes.drawerPaper
-      }}
+      sx={{ flexShrink: 0 }}
+      PaperProps={{ sx: drawerPaperSx }}
     >
       {errorMessage && (
         <Snackbar
@@ -278,9 +260,13 @@ function UserProfile({ onClose, user, userData, updateUserData, firebaseUser }: 
           <CloseIcon />
         </IconButton>
       </div>
-      <div className={`mx-5 ${classes.root}`}>
+      <div className="mx-5" style={{ fontSize: 18 }}>
         <div className="d-flex flex-column align-items-center">
-          <Avatar className={` ${classes.avatar}`} src={avatarUrl || undefined}>
+          <Avatar sx={{
+            width: AVATAR_WIDTH,
+            height: AVATAR_HEIGHT,
+            backgroundColor: theme.palette.primary.main
+          }} src={avatarUrl || undefined}>
             {
               !avatarUrl &&
               // @ts-ignore
@@ -333,7 +319,7 @@ function UserProfile({ onClose, user, userData, updateUserData, firebaseUser }: 
             <CakeIcon className="mr-2" style={{ fill: '#D2D6DB' }} />,
             visibility[DATE_OF_BIRTH] || defaultVisibility[DATE_OF_BIRTH],
             (val: VisibilityEnum) => handleVisibilityChanged([DATE_OF_BIRTH])(val),
-            user.dateOfBirth ? moment(user.dateOfBirth).format('MMMM D') : undefined
+            user.dateOfBirth ? dayjs(user.dateOfBirth).format('MMMM D') : undefined
           )}
         </div>
       </div>

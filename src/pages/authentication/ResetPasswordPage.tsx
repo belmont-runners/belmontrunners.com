@@ -1,6 +1,6 @@
 import { auth } from '../../firebase'
 import React, { useEffect, useState } from 'react'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Button,
   Dialog,
@@ -8,10 +8,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle
-} from '@material-ui/core'
-import { TextField } from 'final-form-material-ui'
+} from '@mui/material'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import { ROOT } from '../../urls'
-import * as PropTypes from 'prop-types'
 import { RESET_PASSWORD_SUCCESS } from '../../messages'
 import * as Sentry from '@sentry/browser'
 import { PASSWORD } from '../../fields'
@@ -22,8 +21,11 @@ import { confirmPasswordReset } from 'firebase/auth'
 
 const WEAK_PASSWORD = 'Password is too weak.'
 
-// @ts-ignore
-function ResetPasswordPage({ history, location: { state: { query: { oobCode } } } }: RouteComponentProps) {
+function ResetPasswordPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  // @ts-ignore
+  const { query: { oobCode } } = location.state
   const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -69,7 +71,7 @@ function ResetPasswordPage({ history, location: { state: { query: { oobCode } } 
   }
 
   const handleClose = () => {
-    history.push(ROOT)
+    navigate(ROOT)
   }
 
   return (
@@ -137,16 +139,4 @@ function ResetPasswordPage({ history, location: { state: { query: { oobCode } } 
   )
 }
 
-ResetPasswordPage.propTypes = {
-  history: PropTypes.object.isRequired,
-  location: PropTypes.shape({
-    state: PropTypes.shape({
-      query: PropTypes.shape({
-        oobCode: PropTypes.string.isRequired
-      }).isRequired
-    }).isRequired
-  }).isRequired
-}
-
-// @ts-ignore
-export default withRouter(ResetPasswordPage)
+export default ResetPasswordPage

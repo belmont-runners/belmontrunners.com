@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { compose } from 'underscore'
-import { Button, Card, CardContent, Typography } from '@material-ui/core'
+import { Button, Card, CardContent, Typography } from '@mui/material'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 // @ts-ignore
 import DownloadButton from 'react-dfb'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { IRedisState, IUser } from '../../entities/User'
 import { User } from 'firebase/auth'
 
@@ -25,7 +25,7 @@ function DownloadAccountInfo({ firebaseUser, userData, isSubmitting }: Props) {
   const handleDownloadPI = () => {
     setDownloadData({
       mime: 'application/json',
-      fileName: `account-${moment().format()}.txt`,
+      fileName: `account-${dayjs().format()}.txt`,
       contentBase64: btoa(JSON.stringify(userDataJS, null, 2))
     })
   }

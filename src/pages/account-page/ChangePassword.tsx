@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Button, Card, CardContent, Typography } from '@material-ui/core'
+import { Button, Card, CardContent, Typography } from '@mui/material'
 import ChangePasswordDialog from './ChangePasswordDialog'
 import { IRedisState } from '../../entities/User'
 import { User } from 'firebase/auth'

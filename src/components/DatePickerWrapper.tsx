@@ -1,6 +1,7 @@
-import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
-// NOTE: Compatibility issue with @date-io/moment v2.x.  See https://github.com/mui-org/material-ui-pickers/issues/1471 for more info.
-import MomentUtils from '@date-io/moment'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs'
 import * as PropTypes from 'prop-types'
 import React from 'react'
 
@@ -15,18 +16,23 @@ function DatePickerWrapper(props: any) {
     meta.touched
 
   return (
-    <MuiPickersUtilsProvider utils={MomentUtils}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
         {...rest}
-        name={name}
+        label={rest.label}
         format={'YYYY-MM-DD'}
-        helperText={showError ? meta.error || meta.submitError : undefined}
-        error={showError}
-        inputProps={restInput}
-        onChange={onChange}
-        value={value === '' ? null : value}
+        onChange={(newValue: dayjs.Dayjs | null) => onChange(newValue)}
+        value={value === '' || value === null ? null : dayjs(value)}
+        slotProps={{
+          textField: {
+            name,
+            helperText: showError ? meta.error || meta.submitError : undefined,
+            error: showError,
+            inputProps: restInput,
+          }
+        }}
       />
-    </MuiPickersUtilsProvider>
+    </LocalizationProvider>
   )
 }
 

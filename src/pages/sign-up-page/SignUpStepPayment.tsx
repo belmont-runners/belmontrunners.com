@@ -1,15 +1,17 @@
 import { functions } from '../../firebase'
 import React, { useEffect, useState } from 'react'
-import { CardElement, injectStripe } from 'react-stripe-elements'
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import SignUpStepperButton from './SignUpStepperButton'
 import './Stripe.scss'
 import * as PropTypes from 'prop-types'
 import LoggedInState from '../../components/HOC/LoggedInState'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
+dayjs.extend(advancedFormat)
 import { ROOT } from '../../urls'
 import { connect } from 'react-redux'
 import * as Sentry from '@sentry/browser'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 import { animateScroll } from 'react-scroll'
 import { compose } from 'underscore'
@@ -22,15 +24,11 @@ import {FunctionsError, httpsCallable } from 'firebase/functions'
 const MEMBERSHIP_FEE_ADULT = 20
 const MEMBERSHIP_FEE_KID = 10
 
-interface StripeTokenResponse {
-  error?: { message: string }
-}
-
 interface StripeTransactionResponse {
   id: string
 }
 
-interface Props extends RouteComponentProps {
+interface Props {
   firebaseUser: User
   needToPay: boolean
   totalAmount: number
@@ -38,14 +36,11 @@ interface Props extends RouteComponentProps {
   onNextClicked: () => void
   youngerThan13: boolean
   membershipExpiresAt?: string
-  stripe: { createToken: (arg0: { type: string }) => StripeTokenResponse }
   updateUserData: IUpdateUserData
 }
 
 function SignUpStepPayment({
                              firebaseUser: { displayName, uid, email },
-                             history,
-                             stripe,
                              isLast,
                              needToPay,
                              totalAmount,
@@ -54,6 +49,9 @@ function SignUpStepPayment({
                              youngerThan13,
                              updateUserData
                            }: Props) {
+  const navigate = useNavigate()
+  const stripe = useStripe()
+  const elements = useElements()
   useEffect(() => {
     animateScroll.scrollToTop({ duration: 0 })
   }, [])
@@ -63,11 +61,19 @@ function SignUpStepPayment({
   const [confirmationNumber, setConfirmationNumber] = useState('')
 
   const createToken = async () => {
+    if (!stripe || !elements) {
+      return
+    }
     try {
-      const stripeTokenResponse: StripeTokenResponse = await stripe.createToken({ type: 'card' })
+      const cardElement = elements.getElement(CardElement)
+      if (!cardElement) {
+        setErrorMessage('Card element not found')
+        return
+      }
+      const stripeTokenResponse = await stripe.createToken(cardElement)
       console.log('stripeTokenResponse:', JSON.stringify(stripeTokenResponse, null, 2))
       if (stripeTokenResponse.error) {
-        setErrorMessage(stripeTokenResponse.error.message)
+        setErrorMessage(stripeTokenResponse.error.message || 'Payment failed')
         return
       }
       return stripeTokenResponse
@@ -87,11 +93,11 @@ function SignUpStepPayment({
       try {
         const stripeResponse = await createToken()
         console.log('stripeResponse2:', !!stripeResponse)
-        if (!stripeResponse) {
+        if (!stripeResponse || !stripeResponse.token) {
           return
         }
         const body = {
-          ...stripeResponse,
+          token: stripeResponse.token,
           origin: window.origin,
           description: `Annual membership for Belmont Runners. name: ${displayName} email: ${email}  uid: ${uid}`,
           amountInCents: totalAmount * 100
@@ -188,11 +194,11 @@ function SignUpStepPayment({
         <>
           <div className="text-success text-center mt-4">
             Your membership expires on{' '}
-            {moment(membershipExpiresAt).format('MMMM Do YYYY')}
+            {dayjs(membershipExpiresAt).format('MMMM Do YYYY')}
           </div>
           <div className="text-success text-center">
             You can renew it after{' '}
-            {moment(membershipExpiresAt)
+            {dayjs(membershipExpiresAt)
               .subtract(1, 'month')
               .format('MMMM Do YYYY')}
           </div>
@@ -213,11 +219,11 @@ function SignUpStepPayment({
         </h4>
         {membershipExpiresAt && (
           <div className="text-success mb-3 text-center">
-            {moment(membershipExpiresAt).isAfter(moment())
-              ? `Your current membership expires on ${moment(membershipExpiresAt).format(
+            {dayjs(membershipExpiresAt).isAfter(dayjs())
+              ? `Your current membership expires on ${dayjs(membershipExpiresAt).format(
                 'MMMM Do YYYY'
               )}`
-              : `Your membership expired on ${moment(membershipExpiresAt).format(
+              : `Your membership expired on ${dayjs(membershipExpiresAt).format(
                 'MMMM Do YYYY'
               )}`}
           </div>
@@ -234,7 +240,7 @@ function SignUpStepPayment({
   console.log('SignUpStepPayment.render() called.')
 
   const handleClose = () => {
-    history.push(ROOT)
+    navigate(ROOT)
   }
 
   function handleNextClicked() {
@@ -307,17 +313,10 @@ SignUpStepPayment.propTypes = {
   totalAmount: PropTypes.number.isRequired,
   youngerThan13: PropTypes.bool.isRequired,
 
-  // from HOC
-  stripe: PropTypes.shape({
-    createToken: PropTypes.func.isRequired
-  }).isRequired,
-
   // from parent
   isLast: PropTypes.bool,
   onNextClicked: PropTypes.func.isRequired,
 
-  // from router-dom
-  history: PropTypes.object.isRequired
 }
 
 const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisState) => {
@@ -332,8 +331,8 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
       console.error('missing userDataJS.dateOfBirth')
       totalAmount = MEMBERSHIP_FEE_ADULT
     } else {
-      const dateOfBirth = moment(userDataJS.dateOfBirth)
-      const isAdult = moment().diff(dateOfBirth, 'years') >= 18
+      const dateOfBirth = dayjs(userDataJS.dateOfBirth)
+      const isAdult = dayjs().diff(dateOfBirth, 'years') >= 18
       if (isAdult) {
         totalAmount = MEMBERSHIP_FEE_ADULT
       } else {
@@ -350,7 +349,7 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
     }
     youngerThan13 =
       (userDataJS.dateOfBirth &&
-        moment().diff(moment(userDataJS.dateOfBirth), 'years') < 13) ||
+        dayjs().diff(dayjs(userDataJS.dateOfBirth), 'years') < 13) ||
       false
     if (youngerThan13) {
       needToPay = false
@@ -370,8 +369,6 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
 
 export default compose(
   UpdateUserData,
-  withRouter,
-  injectStripe,
   LoggedInState(),
   connect(mapStateToProps)
 )(SignUpStepPayment)

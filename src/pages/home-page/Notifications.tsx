@@ -1,8 +1,10 @@
 /*eslint no-unreachable: 0*/
 import React, { useEffect, useState } from 'react'
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 import { ACTION_COLOR, LINK_COLOR, Snackbar } from '../../components/Snackbar'
-import moment from 'moment/moment'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import * as Sentry from '@sentry/browser'
@@ -31,17 +33,19 @@ function Notifications({ firebaseUser, userData, updateUserData }: Props) {
 
   interface Props1 {
     key: string,
-    duration?: moment.Duration
+    durationAmount?: number,
+    durationUnit?: dayjs.ManipulateType
   }
 
   const wasPopupDismissed = ({
                                key,
-                               duration = moment.duration(7, 'days')
+                               durationAmount = 7,
+                               durationUnit = 'day'
                              }: Props1) => {
     const snoozedAt =
       userDataJS.notifications ? userDataJS.notifications[key] : undefined
 
-    if (!!snoozedAt && moment().isBefore(moment(snoozedAt).add(duration))) {
+    if (!!snoozedAt && dayjs().isBefore(dayjs(snoozedAt).add(durationAmount, durationUnit))) {
       console.log(key + ' dismissed.  snoozedAt:', snoozedAt)
       return true
     }
@@ -52,21 +56,21 @@ function Notifications({ firebaseUser, userData, updateUserData }: Props) {
       userDataJS,
       'snoozedAt:',
       snoozedAt,
-      'moment(snoozedAt).add(2, \'days\'):',
-      moment(snoozedAt)
+      'dayjs(snoozedAt).add(2, \'days\'):',
+      dayjs(snoozedAt)
         .add(2, 'days')
         .format(),
-      'moment():',
-      moment().format(),
-      'moment(snoozedAt).add(2, \'days\').isAfter(moment()):',
-      moment(snoozedAt)
+      'dayjs():',
+      dayjs().format(),
+      'dayjs(snoozedAt).add(2, \'days\').isAfter(dayjs()):',
+      dayjs(snoozedAt)
         .add(2, 'days')
-        .isAfter(moment()),
+        .isAfter(dayjs()),
       'total:',
       !!snoozedAt &&
-      moment(snoozedAt)
+      dayjs(snoozedAt)
         .add(2, 'days')
-        .isAfter(moment())
+        .isAfter(dayjs())
     )
 
     return false
@@ -75,7 +79,7 @@ function Notifications({ firebaseUser, userData, updateUserData }: Props) {
   const dismissNotification = async ({ key }: { key: string }) => {
     try {
       setNotification(undefined)
-      const values: IUserOptionalProps = { notifications: { [key]: moment().utc().format() } }
+      const values: IUserOptionalProps = { notifications: { [key]: dayjs().utc().format() } }
       await updateUserData(values, { merge: true }
       )
     } catch (error) {

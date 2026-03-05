@@ -5,7 +5,7 @@ import {
   updateProfile
 } from 'firebase/auth'
 import React, { useEffect, useState } from 'react'
-import { TextField } from 'final-form-material-ui'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import {
   EMAIL_ALREADY_IN_USE,
   INVALID_EMAIL,
@@ -23,7 +23,9 @@ import {
   WAVER,
   WAVER_FILE_NAME
 } from '../../urls'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 import * as Sentry from '@sentry/browser'
 import { Field, Form } from 'react-final-form'
 import { DISPLAY_NAME, EMAIL, PASSWORD } from '../../fields'
@@ -69,11 +71,11 @@ function SignUpStepAuth({ onNextClicked, isLast }: Props) {
       const values: IUserOptionalProps = {
         displayName,
         tosUrl: TOS_FILE_NAME,
-        tosAcceptedAt: moment().format(),
+        tosAcceptedAt: dayjs().format(),
         waverUrl: WAVER_FILE_NAME,
-        waverAcceptedAt: moment().utc().format(),
+        waverAcceptedAt: dayjs().utc().format(),
         privacyPolicyUrl: PRIVACY_POLICY_FILE_NAME,
-        privacyPolicyAcceptedAt: moment().utc().format()
+        privacyPolicyAcceptedAt: dayjs().utc().format()
       }
       await setDoc(userRef, values, { merge: true })
       onNextClicked()

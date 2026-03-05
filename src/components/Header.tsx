@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import {
   AppBar,
   Button,
@@ -7,16 +6,16 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   SwipeableDrawer,
   Toolbar,
-  useMediaQuery,
-  useTheme
-} from '@material-ui/core'
+  useMediaQuery
+} from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import {
   AccountCircle as ProfileIcon,
-  Announcement as BlogIcon,
   Close as CloseIcon,
   Contacts as ContactsIcon,
   ExitToApp as SignInIcon,
@@ -29,13 +28,11 @@ import {
   SupervisedUserCircle as LeadershipIcon,
   Schedule as ScheduleIcon,
   QuestionAnswer as FAQIcon,
-  Settings as AccountIcon,
-  ShoppingCart as StoreIcon
-} from '@material-ui/icons'
+  Settings as AccountIcon
+} from '@mui/icons-material'
 import Profile from './Profile'
 import {
   ACCOUNT,
-  BLOG,
   CONTACTS,
   FAQ,
   FORGOT_PASSWORD,
@@ -46,25 +43,20 @@ import {
   RESET_PASSWORD,
   ROOT,
   SIGN_IN,
-  STORE,
   USERS, SCHEDULE
 } from '../urls'
-import { RouteComponentProps } from 'react-router'
-import { Link, withRouter } from 'react-router-dom'
-import $ from 'jquery'
-import * as PropTypes from 'prop-types'
+import { Link, useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
 import calc from '../utilities/membershipUtils'
 import { User } from 'firebase/auth'
 import { IRedisState, IUser } from '../entities/User'
-import { compose } from 'underscore'
 import { auth } from '../firebase'
 
 const TOOLBAR_HEIGHT = 72
 const DRAWER_WIDTH = 240
 const BACKGROUND_IMAGE = 'linear-gradient(90deg,#141da2,#9b5cf6)'
 
-interface Props extends RouteComponentProps {
+interface Props {
   isCurrentUserLoaded: boolean,
   firebaseUser: User,
   allowUsersPage: boolean,
@@ -72,7 +64,8 @@ interface Props extends RouteComponentProps {
   isMember: boolean
 }
 
-function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, allowUsersPage, allowContactsPage, isMember }: Props) {
+function Header({ isCurrentUserLoaded, firebaseUser, allowUsersPage, allowContactsPage, isMember }: Props) {
+  const { pathname } = useLocation()
   const [transparentBackground, setTransparentBackground] = useState(true)
   const [showDrawer, setShowDrawer] = useState(false)
 
@@ -89,22 +82,22 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
       }
       const nav_offset_top: number = TOOLBAR_HEIGHT + 50
 
-      const scroll = $(window).scrollTop()
-      if (scroll && Number(scroll) >= nav_offset_top) {
+      const scroll = window.scrollY
+      if (scroll >= nav_offset_top) {
         setTransparentBackground(false)
       } else {
         setTransparentBackground(true)
       }
     }
-    $(window).scroll(evalBackground)
+    window.addEventListener('scroll', evalBackground)
     evalBackground()
     return () => {
-      $(window).unbind('scroll')
+      window.removeEventListener('scroll', evalBackground)
     }
   }, [pathname])
 
   const theme = useTheme()
-  const isSmallDevice = useMediaQuery(theme.breakpoints.down('sm'))
+  const isSmallDevice = useMediaQuery(theme.breakpoints.down('md'))
 
   const rootStyle: { height?: number } = {}
   const appBarStyle: {
@@ -128,7 +121,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
     rootStyle.height = TOOLBAR_HEIGHT
 
   }
-  const useStyles = makeStyles(() => ({
+  const styles = {
     root: {
       flexGrow: 1,
       ...rootStyle
@@ -143,16 +136,13 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
     },
     menuItem: {
       font: '500 12px/80px "Roboto", sans-serif',
-      textTransform: 'uppercase',
+      textTransform: 'uppercase' as const,
       color: 'white',
       cursor: 'pointer'
     },
     drawer: {
       width: DRAWER_WIDTH,
       flexShrink: 0
-    },
-    drawerPaper: {
-      width: DRAWER_WIDTH
     },
     drawerHeader: {
       display: 'flex',
@@ -163,9 +153,6 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
       backgroundColor: '#9b5cf6',
       height: TOOLBAR_HEIGHT
     },
-    drawerHeaderCloseIcon: {
-      color: 'white'
-    },
     drawerList: {
       paddingTop: 20,
       paddingLeft: 10
@@ -173,8 +160,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
     drawerLink: {
       color: theme.palette.text.primary
     }
-  }))
-  const classes = useStyles()
+  }
 
   const handleOpenDrawer = () => {
     setShowDrawer(true)
@@ -191,33 +177,33 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
   const isSignedIn: boolean = isCurrentUserLoaded && !!firebaseUser
 
   return (
-    <div className={classes.root}>
-      <AppBar position="absolute" className={classes.appBar}>
+    <div style={styles.root}>
+      <AppBar position="absolute" sx={styles.appBar}>
         {
           isSmallDevice &&
           <SwipeableDrawer
-            className={classes.drawer}
+            sx={styles.drawer}
             anchor="right"
             open={showDrawer}
             onOpen={handleOpenDrawer}
-            classes={{
-              paper: classes.drawerPaper
-            }}
+            PaperProps={{ sx: { width: DRAWER_WIDTH } }}
             onClose={handleDrawerClose}
           >
-            <div className={classes.drawerHeader}>
+            <div style={styles.drawerHeader}>
               <IconButton onClick={handleDrawerClose}>
-                <CloseIcon className={classes.drawerHeaderCloseIcon} />
+                <CloseIcon sx={{ color: 'white' }} />
               </IconButton>
             </div>
             <Divider />
-            <List className={classes.drawerList}>
+            <List sx={styles.drawerList}>
               {
                 isSignedOut &&
                 <Link to={SIGN_IN} onClick={handleDrawerClose}>
-                  <ListItem button>
-                    <ListItemIcon><SignInIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Sign in' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><SignInIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Sign in' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
 
                 </Link>
@@ -227,18 +213,22 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 <Link to={{
                   pathname: JOIN
                 }} onClick={handleDrawerClose}>
-                  <ListItem button>
-                    <ListItemIcon><JoinUsIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Join us' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><JoinUsIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Join us' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
                 </Link>
               }
               {
                 isSignedIn &&
                 <Link to={ROOT} onClick={handleDrawerClose}>
-                  <ListItem button>
-                    <ListItemIcon><HomeIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Home' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><HomeIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Home' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
                 </Link>
               }
@@ -246,61 +236,59 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 isSignedIn &&
                 <>
                   <Link to={PROFILE} onClick={handleDrawerClose}>
-                    <ListItem button>
-                      <ListItemIcon><ProfileIcon color='primary' /></ListItemIcon>
-                      <ListItemText primary='Profile' className={classes.drawerLink} />
+                    <ListItem disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon><ProfileIcon color='primary' /></ListItemIcon>
+                        <ListItemText primary='Profile' sx={styles.drawerLink} />
+                      </ListItemButton>
                     </ListItem>
                   </Link>
                   <Link to={ACCOUNT} onClick={handleDrawerClose}>
-                    <ListItem button>
-                      <ListItemIcon><AccountIcon color='primary' /></ListItemIcon>
-                      <ListItemText primary='Account' className={classes.drawerLink} />
+                    <ListItem disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon><AccountIcon color='primary' /></ListItemIcon>
+                        <ListItemText primary='Account' sx={styles.drawerLink} />
+                      </ListItemButton>
                     </ListItem>
                   </Link>
                 </>
               }
 
               <Link to={ABOUT_US} onClick={handleDrawerClose}>
-                <ListItem button>
-                  <ListItemIcon><LeadershipIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='About Us' className={classes.drawerLink} />
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon><LeadershipIcon color='primary' /></ListItemIcon>
+                    <ListItemText primary='About Us' sx={styles.drawerLink} />
+                  </ListItemButton>
                 </ListItem>
               </Link>
 
               <a href={SCHEDULE} onClick={handleDrawerClose}>
-                <ListItem button>
-                  <ListItemIcon><ScheduleIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='Schedule' className={classes.drawerLink} />
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon><ScheduleIcon color='primary' /></ListItemIcon>
+                    <ListItemText primary='Schedule' sx={styles.drawerLink} />
+                  </ListItemButton>
                 </ListItem>
               </a>
 
               <Link to={FAQ} onClick={handleDrawerClose}>
-                <ListItem button>
-                  <ListItemIcon><FAQIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='FAQ' className={classes.drawerLink} />
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon><FAQIcon color='primary' /></ListItemIcon>
+                    <ListItemText primary='FAQ' sx={styles.drawerLink} />
+                  </ListItemButton>
                 </ListItem>
               </Link>
-
-              <a href={BLOG} onClick={handleDrawerClose}>
-                <ListItem button>
-                  <ListItemIcon><BlogIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='Latest news' className={classes.drawerLink} />
-                </ListItem>
-              </a>
-
-              <a href={STORE} onClick={handleDrawerClose}>
-                <ListItem button>
-                  <ListItemIcon><StoreIcon color='primary' /></ListItemIcon>
-                  <ListItemText primary='Store' className={classes.drawerLink} />
-                </ListItem>
-              </a>
 
               {
                 isMember &&
                 <Link to={MEMBERS} onClick={handleDrawerClose}>
-                  <ListItem button>
-                    <ListItemIcon><MembersIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Members' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><MembersIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Members' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
                 </Link>
               }
@@ -308,9 +296,11 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
               {
                 allowUsersPage &&
                 <Link to={USERS} onClick={handleDrawerClose}>
-                  <ListItem button>
-                    <ListItemIcon><UsersIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Users' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><UsersIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Users' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
                 </Link>
               }
@@ -318,9 +308,11 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
               {
                 allowContactsPage &&
                 <Link to={CONTACTS} onClick={handleDrawerClose}>
-                  <ListItem button>
-                    <ListItemIcon><ContactsIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Contacts' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><ContactsIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Contacts' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
                 </Link>
               }
@@ -333,9 +325,11 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                         handleDrawerClose()
                         await auth.signOut()
                       }}>
-                  <ListItem button>
-                    <ListItemIcon><SignOutIcon color='primary' /></ListItemIcon>
-                    <ListItemText primary='Sign out' className={classes.drawerLink} />
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon><SignOutIcon color='primary' /></ListItemIcon>
+                      <ListItemText primary='Sign out' sx={styles.drawerLink} />
+                    </ListItemButton>
                   </ListItem>
                 </Link>
               }
@@ -343,7 +337,7 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
           </SwipeableDrawer>
         }
 
-        <Toolbar className={classes.toolbar}>
+        <Toolbar sx={styles.toolbar}>
           <div className='d-flex w-100 align-items-center'>
             <Link to={ROOT}>
               <img src="img/logo.png" alt='' style={{ verticalAlign: 'initial' }} />
@@ -356,36 +350,26 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
                 !isSmallDevice &&
                 <>
 
-                  <a href={SCHEDULE} className={classes.menuItem}>
+                  <a href={SCHEDULE} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>SCHEDULE</span>
                     </div>
                   </a>
-                  <Link to={ABOUT_US} className={classes.menuItem}>
+                  <Link to={ABOUT_US} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>About Us</span>
                     </div>
                   </Link>
-                  <Link to={FAQ} className={classes.menuItem}>
+                  <Link to={FAQ} style={styles.menuItem}>
                     <div className='text-white d-flex align-items-center'>
                       <span className='mx-2 text-with-shadow'>FAQ</span>
                     </div>
                   </Link>
-                  <a href={BLOG} className={classes.menuItem}>
-                    <div className='text-white d-flex align-items-center'>
-                      <span className='mx-2 text-with-shadow'>Latest news</span>
-                    </div>
-                  </a>
-                  <a href={STORE} className={classes.menuItem}>
-                    <div className='text-white d-flex align-items-center'>
-                      <span className='mx-2 text-with-shadow'>Store</span>
-                    </div>
-                  </a>
                 </>
               }
               {
                 !isSmallDevice && isMember &&
-                <Link to={MEMBERS} className={classes.menuItem} /*style={{ marginLeft: '2em' }}*/>
+                <Link to={MEMBERS} style={styles.menuItem} /*style={{ marginLeft: '2em' }}*/>
                   <div className='text-white d-flex align-items-center'>
                     <span className='mx-2 text-with-shadow'>Members</span>
                   </div>
@@ -432,17 +416,6 @@ function Header({ location: { pathname }, isCurrentUserLoaded, firebaseUser, all
   )
 }
 
-Header.propTypes = {
-  allowUsersPage: PropTypes.bool.isRequired,
-  allowContactsPage: PropTypes.bool.isRequired,
-  isCurrentUserLoaded: PropTypes.bool.isRequired,
-  firebaseUser: PropTypes.object,
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired
-  }).isRequired,
-  isMember: PropTypes.bool.isRequired
-}
-
 const mapStateToProps = ({ currentUser: { isCurrentUserLoaded, firebaseUser, permissions, userData } }: IRedisState) => {
   const userDataJS: IUser = userData ? userData.toJS() : undefined
   return {
@@ -454,7 +427,4 @@ const mapStateToProps = ({ currentUser: { isCurrentUserLoaded, firebaseUser, per
   }
 }
 
-export default compose(
-  withRouter,
-  connect(mapStateToProps)
-)(Header)
+export default connect(mapStateToProps)(Header)

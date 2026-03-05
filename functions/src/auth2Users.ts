@@ -7,7 +7,9 @@ import { User } from './User'
 import { each } from 'bluebird'
 import got from 'got'
 
-const moment = require('moment')
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 const gravatar = require('gravatar')
 
 export interface Auth2UsersOptions {
@@ -34,10 +36,10 @@ export default class Auth2Users {
       } = userRecord
 
 
-      const createdAt = moment(creationTime)
+      const createdAt = dayjs(creationTime)
         .utc()
         .format()
-      const lastSignedInAt: string = moment(lastSignInTime)
+      const lastSignedInAt: string = dayjs(lastSignInTime)
         .utc()
         .format()
       const userRef = this.firestore.doc(`users/${uid}`)
@@ -80,8 +82,8 @@ export default class Auth2Users {
       const listUsersResult = await this.auth.listUsers(1000, nextPageToken)
       // We want to sync the most active acccounts first.
       listUsersResult.users.sort((userRecord1: UserRecord, userRecord2: UserRecord) => {
-        const lastSignInTime1 = moment(userRecord1.metadata.lastSignInTime)
-        const lastSignInTime2 = moment(userRecord2.metadata.lastSignInTime)
+        const lastSignInTime1 = dayjs(userRecord1.metadata.lastSignInTime)
+        const lastSignInTime2 = dayjs(userRecord2.metadata.lastSignInTime)
         return lastSignInTime2.diff(lastSignInTime1)
       })
       await each(listUsersResult.users, async (userRecord: UserRecord) => {

@@ -1,4 +1,4 @@
-import {FacebookAuthProvider, linkWithPopup, unlink, User } from 'firebase/auth'
+import {FacebookAuthProvider, linkWithPopup, User } from 'firebase/auth'
 
 import { PHOTO_URL } from '../fields'
 import { IUser, IUserOptionalProps } from '../entities/User'
@@ -25,26 +25,5 @@ export const linkToFacebook = async (firebaseUser: User, userData: IUser, update
   } catch (err) {
     console.log('err:', err)
     throw new Error('Connection failed')
-  }
-}
-
-export const unlinkFromFacebook = async (firebaseUser: User, updateUserData: IUpdateUserData) => {
-  try {
-    console.log('UnlinkFromFacebook called.')
-    await unlink(firebaseUser, 'facebook.com')
-    const foundProviderData = firebaseUser.providerData.find(
-      (userInfo) => {
-        return userInfo && Boolean(userInfo.photoURL)
-      }
-    )
-    const photoUrl = foundProviderData ? foundProviderData.photoURL : null
-    console.log('foundProviderData :', foundProviderData)
-    console.log('photoUrl :', photoUrl)
-    const values: IUserOptionalProps = { [PHOTO_URL]: null }
-    // doing this in order to trigger an update.
-    await updateUserData(values, { merge: true })
-  } catch (err) {
-    console.log('err:', err)
-    throw new Error('Disconnection failed')
   }
 }

@@ -1,8 +1,8 @@
 import { auth } from '../../firebase'
 import * as PropTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
-import { Link, withRouter, RouteComponentProps } from 'react-router-dom'
-import { TextField } from 'final-form-material-ui'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import {
   INVALID_EMAIL,
   POPUP_CLOSED_BEFORE_COMPLETION,
@@ -15,7 +15,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle
-} from '@material-ui/core'
+} from '@mui/material'
 import { FORGOT_PASSWORD, ROOT } from '../../urls'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import * as Sentry from '@sentry/browser'
@@ -28,11 +28,13 @@ import { required, isEmail, minPasswordLength, composeValidators } from '../../u
 import { IRedisState } from '../../entities/User'
 import {AuthError, signInWithEmailAndPassword, User } from 'firebase/auth'
 
-interface Props extends RouteComponentProps {
+interface Props {
   firebaseUser: User
 }
 
-function SignInPage({ history, location, firebaseUser }: Props) {
+function SignInPage({ firebaseUser }: Props) {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [errorMessage, setErrorMessage] = useState('')
   const [isSigningIn, setIsSigningIn] = useState(false)
 
@@ -88,7 +90,7 @@ function SignInPage({ history, location, firebaseUser }: Props) {
   }
 
   const handleClose = () => {
-    history.push(ROOT)
+    navigate(ROOT)
   }
 
   useEffect(() => {
@@ -101,8 +103,8 @@ function SignInPage({ history, location, firebaseUser }: Props) {
       // @ts-ignore
       targetUrl = location.state.redirectUrl
     }
-    firebaseUser && history.push(targetUrl)
-  }, [firebaseUser, history, location])
+    firebaseUser && navigate(targetUrl)
+  }, [firebaseUser, navigate, location])
 
   return (
     <Form
@@ -174,13 +176,7 @@ function SignInPage({ history, location, firebaseUser }: Props) {
 }
 
 SignInPage.propTypes = {
-  firebaseUser: PropTypes.object,
-  history: PropTypes.object.isRequired,
-  location: PropTypes.shape({
-    state: PropTypes.shape({
-      redirectUrl: PropTypes.string
-    })
-  }).isRequired
+  firebaseUser: PropTypes.object
 }
 
 const mapStateToProps = ({ currentUser: { firebaseUser } }: IRedisState) => {
@@ -191,6 +187,5 @@ const mapStateToProps = ({ currentUser: { firebaseUser } }: IRedisState) => {
 
 export default compose(
   connect(mapStateToProps),
-  withRouter,
   LoggedInState({ isRequiredToBeLoggedIn: false })
 )(SignInPage)

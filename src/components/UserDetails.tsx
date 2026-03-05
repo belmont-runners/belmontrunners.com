@@ -1,8 +1,8 @@
 import React from 'react'
-import { Select, TextField } from 'final-form-material-ui'
-import moment from 'moment'
+import { Select, TextField } from './FinalFormMuiAdapters'
+import dayjs from 'dayjs'
 import { Field } from 'react-final-form'
-import { MenuItem } from '@material-ui/core'
+import MenuItem from '@mui/material/MenuItem'
 import {
   ADDRESS1,
   ADDRESS2,
@@ -17,8 +17,9 @@ import {
 import DatePickerWrapper from './DatePickerWrapper'
 import * as PropTypes from 'prop-types'
 import { mustBeNumber, required, birthday, composeValidators } from '../utilities/formValidators'
+import statesData from './states_titlecase.json'
 
-const states: [{ name: string, abbreviation: string }] = require('./states_titlecase.json')
+const states: { name: string, abbreviation: string }[] = statesData
 
 function UserDetails({ showDisplayName = false }) {
   const spacer = <div style={{ flexGrow: 0, flexShrink: 0, width: 20 }} />
@@ -149,7 +150,7 @@ function UserDetails({ showDisplayName = false }) {
             if (!value) {
               return null
             }
-            return moment(value, 'YYYY-MM-DD')
+            return dayjs(value, 'YYYY-MM-DD')
           }}
           parse={value => {
             // to json

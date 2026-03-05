@@ -1,68 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel'
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
-import Typography from '@material-ui/core/Typography'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import Typography from '@mui/material/Typography'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { animateScroll } from 'react-scroll'
-import { ExpansionPanelDetails } from '@material-ui/core'
 import data from './data.json'
 import ReactMarkdown from 'react-markdown'
 
 export default function FaqPage() {
-  const useStylesExpansionPanel = makeStyles((theme: Theme) =>
-      createStyles({
-        root: {
-          marginBottom: '1em'
-          // border: '1px solid rgba(0, 0, 0, .125)',
-          // boxShadow: 'none',
-          // '&:not(:last-child)': {
-          //   borderBottom: 0,
-          // },
-          // '&:before': {
-          //   display: 'none',
-          // },
-          // '&$expanded': {
-          //   margin: 'auto',
-          // }
-        }
-      })
-  )
-  const classesExpansionPanel = useStylesExpansionPanel()
-
-  const useStylesExpansionPanelSummary = makeStyles((theme: Theme) =>
-      createStyles({
-        root: {
-          // backgroundColor: 'rgba(0, 0, 0, .03)',
-          // backgroundColor: theme.palette.secondary.main,
-          borderBottom: '1px solid rgba(0, 0, 0, .125)',
-          marginBottom: -1,
-          minHeight: 56,
-          '&$expanded': {
-            minHeight: 56
-          }
-        },
-        content: {
-          '&$expanded': {
-            margin: '12px 0'
-          }
-        },
-        expanded: {}
-      })
-  )
-  const classesExpansionPanelSummary = useStylesExpansionPanelSummary()
-
-  const useStylesExpansionPanelDetails = makeStyles((theme: Theme) =>
-      createStyles({
-        root: {
-          padding: theme.spacing(2),
-          backgroundColor: 'rgba(0, 0, 0, .03)'
-        }
-      })
-  )
-  const classesExpansionPanelDetails = useStylesExpansionPanelDetails()
-
-
   useEffect(() => {
     animateScroll.scrollToTop({ duration: 0 })
   }, [])
@@ -73,19 +19,35 @@ export default function FaqPage() {
     return data.map(({question, answer}, index) => {
       const panelId = `panel${index}`
       return (
-          <ExpansionPanel key={panelId} classes={classesExpansionPanel}
-                          expanded={expanded === panelId}
-                          onChange={handleChange(panelId)}>
-            <ExpansionPanelSummary classes={classesExpansionPanelSummary}
-                                   aria-controls={`${panelId}d-content`}
-                                   id={`${panelId}d-header`}
-                                   expandIcon={<ExpandMoreIcon/>}>
-              <Typography><ReactMarkdown>{question}</ReactMarkdown></Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails classes={classesExpansionPanelDetails}>
-              <Typography><ReactMarkdown linkTarget={() => '_blank'}>{answer}</ReactMarkdown></Typography>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
+          <Accordion key={panelId}
+                     sx={{ marginBottom: '1em', '&::before': { display: 'none' } }}
+                     expanded={expanded === panelId}
+                     onChange={handleChange(panelId)}>
+            <AccordionSummary
+                sx={{
+                  minHeight: 56,
+                  '&.Mui-expanded': {
+                    minHeight: 56,
+                    borderBottom: '1px solid rgba(0, 0, 0, .125)',
+                  },
+                  '& .MuiAccordionSummary-content': {
+                    '&.Mui-expanded': {
+                      margin: '12px 0'
+                    }
+                  }
+                }}
+                aria-controls={`${panelId}d-content`}
+                id={`${panelId}d-header`}
+                expandIcon={<ExpandMoreIcon/>}>
+              <Typography component="div"><ReactMarkdown components={{ p: ({children}) => <>{children}</> }}>{question}</ReactMarkdown></Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={(theme) => ({
+              padding: theme.spacing(2),
+              backgroundColor: 'rgba(0, 0, 0, .03)'
+            })}>
+              <Typography component="div"><ReactMarkdown components={{ p: ({children}) => <p style={{ margin: '0.25em 0' }}>{children}</p> }} linkTarget={() => '_blank'}>{answer}</ReactMarkdown></Typography>
+            </AccordionDetails>
+          </Accordion>
       )
     })
   }

@@ -8,15 +8,14 @@ import {
   Avatar,
   Chip,
   CircularProgress,
-  makeStyles,
   Paper,
   Snackbar
-} from '@material-ui/core'
-import DirectionsRun from '@material-ui/icons/DirectionsRun'
+} from '@mui/material'
+import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import FuzzySearch from 'fuzzy-search'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import UserProfile from './UserProfile'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { compose, findWhere, isString, sortBy } from 'underscore'
 import { MEMBERS, ROOT } from '../../urls'
 import SearchBox from '../../components/SearchBox'
@@ -25,25 +24,18 @@ import { getAvatar, IRedisState, IUser } from '../../entities/User'
 import { User } from 'firebase/auth'
 import { FunctionsError, httpsCallable } from 'firebase/functions'
 
-interface Props extends RouteComponentProps {
+interface Props {
   firebaseUser: User
   userData: any
 }
 
 function MembersPage({
   firebaseUser,
-  location: { pathname },
-  history,
   userData
 }: Props) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
   const userDataJS: IUser = userData.toJS()
-  const useStyles = makeStyles(() => ({
-    chipAvatar: {
-      width: 32,
-      height: 32
-    }
-  }))
-  const classes = useStyles()
 
   const [isLoading, setIsLoading] = useState(true)
   const [showError, setShowError] = useState(false)
@@ -76,7 +68,7 @@ function MembersPage({
           if (funcErr.message) {
             const error = JSON.parse(funcErr.message)
             if (error.status === 403) {
-              history.push(ROOT)
+              navigate(ROOT)
               return
             }
           }
@@ -104,7 +96,7 @@ function MembersPage({
     if (res) {
       setSelected(res)
     } else {
-      history.push(MEMBERS)
+      navigate(MEMBERS)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users, pathname])
@@ -112,11 +104,11 @@ function MembersPage({
   const [search, setSearch] = useState('')
 
   const handleChipSelected = (user: IUser) => {
-    history.push(`${MEMBERS}/${user.uid}`)
+    navigate(`${MEMBERS}/${user.uid}`)
   }
 
   const handleDrawerClosed = () => {
-    history.push(MEMBERS)
+    navigate(MEMBERS)
   }
 
   const applyFilter = useCallback(() => {
@@ -160,7 +152,7 @@ function MembersPage({
         <Chip
           className="my-1 mx-1"
           avatar={
-            <Avatar className={classes.chipAvatar} src={avatarUrl}>
+            <Avatar sx={{ width: 32, height: 32 }} src={avatarUrl}>
               {!avatarUrl && <DirectionsRun />}
             </Avatar>
           }
@@ -206,9 +198,7 @@ function MembersPage({
 
 MembersPage.propTypes = {
   firebaseUser: PropTypes.object.isRequired,
-  userData: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  userData: PropTypes.object.isRequired
 }
 
 const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisState) => {
@@ -221,7 +211,6 @@ const mapStateToProps = ({ currentUser: { firebaseUser, userData } }: IRedisStat
 }
 
 export default compose(
-  withRouter,
   LoggedInState(),
   connect(mapStateToProps)
 )(MembersPage)

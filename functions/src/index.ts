@@ -9,9 +9,10 @@ import SendMembershipReminders from './sendMembershipReminders'
 import Stripe from './stripe'
 import UpdateEvents from './updateEvents'
 import Users2Contacts from './users2Contacts'
-import * as functions from 'firebase-functions'
+import * as functions from 'firebase-functions/v1'
 import { info, error } from "firebase-functions/logger"
-import { UserRecord } from 'firebase-functions/lib/providers/auth'
+import { defineString, defineSecret } from 'firebase-functions/params'
+import { UserRecord } from 'firebase-functions/v1/auth'
 import * as Admin from 'firebase-admin'
 import { EMAIL } from './fields'
 import { props } from 'bluebird'
@@ -20,27 +21,16 @@ import { Firestore } from 'firebase-admin/firestore'
 const admin: Admin.app.App = Admin.initializeApp()
 const firestore: Firestore = admin.firestore()
 
-const apiKey = functions.config().mailchimp.apikey
-const { app_id, city_id } = functions.config().openweathermap
-const {
-  membership_fee_in_cents,
-  secret_keys: { live, test }
-} = functions.config().stripe
+// Environment parameters (replaces functions.config())
+const mailchimpApiKey = defineString('MAILCHIMP_APIKEY')
+const openweathermapAppId = defineString('OPENWEATHERMAP_APP_ID')
+const openweathermapCityId = defineString('OPENWEATHERMAP_CITY_ID')
+const stripeMembershipFeeInCents = defineString('STRIPE_MEMBERSHIP_FEE_IN_CENTS')
+const stripeSecretKeyLive = defineSecret('STRIPE_SECRET_KEY_LIVE')
+const stripeSecretKeyTest = defineSecret('STRIPE_SECRET_KEY_TEST')
 
-const addContactImpl = AddContact(admin)
 const auth2Users = new Auth2Users(admin)
-const contacts2MailChimp = Contacts2MailChimp(admin, apiKey)
-const deleteUserImpl = DeleteUser(admin, apiKey)
 const generateICal = GenerateICal()
-const getMembersImpl = GetMembers(admin)
-const purgeUsersUnder13 = PurgeUsersUnder13(admin, apiKey, false)
-const sendMembershipReminders = SendMembershipReminders(admin)
-const stripeImpl = Stripe(admin, {
-  membershipFeeInCents: membership_fee_in_cents,
-  secretKeys: { live, test }
-})
-const users2Contacts = Users2Contacts(admin)
-const updateEvents = UpdateEvents(admin, app_id, city_id)
 
 const ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS = 180
 
@@ -48,7 +38,10 @@ export const purgeUsersUnder13CronJob = functions
   .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS })
   .pubsub
   .schedule('10 */6 * * *')
-  .onRun(async () => await purgeUsersUnder13())
+  .onRun(async () => {
+    const purgeUsersUnder13 = PurgeUsersUnder13(admin, mailchimpApiKey.value(), false)
+    await purgeUsersUnder13()
+  })
 
 export const auth2UsersCronJob = functions
   .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS })
@@ -68,6 +61,7 @@ export const users2ContactsCronJob = functions
   .schedule('30 */6 * * *')
   .onRun(async () => {
     try {
+      const users2Contacts = Users2Contacts(admin)
       await users2Contacts()
       info('users2ContactsCronJob: done')
     } catch (err) {
@@ -81,6 +75,7 @@ export const contacts2MailChimpCronJob = functions
   .schedule('40 */6 * * *')
   .onRun(async () => {
     try {
+      const contacts2MailChimp = Contacts2MailChimp(admin, mailchimpApiKey.value())
       await contacts2MailChimp()
       info('Calling process.exit(0)')
       setTimeout(function () {
@@ -98,7 +93,10 @@ export const contacts2MailChimpCronJob = functions
 export const updateEventsCronJob = functions
   .pubsub
   .schedule('*/20 * * * *')
-  .onRun(async () => await updateEvents())
+  .onRun(async () => {
+    const updateEvents = UpdateEvents(admin, openweathermapAppId.value(), openweathermapCityId.value())
+    await updateEvents()
+  })
 
 export const waiver = functions
   .https
@@ -114,12 +112,9 @@ export const ical = functions
       const body = await generateICal()
       res.set({
         'cache-control': 'no-cache, no-store, max-age=0, must-revalidate',
-        // 'content-security-policy': "script-src 'report-sample' 'nonce-b3O76BbGW8VYkTGK5Nxtvw' 'unsafe-inline' 'strict-dynamic' https: http: 'unsafe-eval';object-src 'none';base-uri 'self';report-uri /calendar/cspreport",
         'content-type': 'text/calendar; charset=UTF-8',
-        // 'date': 'Sat, 15 Jun 2019 22:23:46 GMT',
         expires: 'Mon, 01 Jan 1990 00:00:00 GMT',
         pragma: 'no-cache',
-        // 'server': 'GSE',
         'strict-transport-security':
           'max-age=31536000; includeSubDomains; preload',
         'x-content-type-options': 'nosniff',
@@ -134,18 +129,30 @@ export const ical = functions
   })
 
 export const stripe = functions
-  .runWith({ memory: '512MB' })
-  .https.onCall(stripeImpl)
+  .runWith({ memory: '512MB', secrets: [stripeSecretKeyLive, stripeSecretKeyTest] })
+  .https.onCall((data, context) => {
+    const stripeImpl = Stripe(admin, {
+      membershipFeeInCents: stripeMembershipFeeInCents.value(),
+      secretKeys: { live: stripeSecretKeyLive.value(), test: stripeSecretKeyTest.value() }
+    })
+    return stripeImpl(data, context)
+  })
 
 export const addContact = functions
   .runWith({ memory: '512MB' })
   .https
-  .onCall(addContactImpl)
+  .onCall((data, context) => {
+    const addContactImpl = AddContact(admin)
+    return addContactImpl(data, context)
+  })
 
 export const getMembers = functions
   .runWith({ timeoutSeconds: 30, memory: '512MB' })
   .https
-  .onCall(getMembersImpl)
+  .onCall((data, context) => {
+    const getMembersImpl = GetMembers(admin)
+    return getMembersImpl(data, context)
+  })
 
 export const deleteUser = functions
   .runWith({ timeoutSeconds: 30, memory: '512MB' })
@@ -181,6 +188,7 @@ export const deleteUser = functions
     } else {
       targetEmail = context.auth.token[EMAIL]
     }
+    const deleteUserImpl = DeleteUser(admin, mailchimpApiKey.value())
     await deleteUserImpl({ uid: targetUID, email: targetEmail })
   })
 
@@ -188,4 +196,7 @@ export const sendMembershipRemindersCronJob = functions
   .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS })
   .pubsub
   .schedule('0 19 * * *')
-  .onRun(async () => await sendMembershipReminders())
+  .onRun(async () => {
+    const sendMembershipReminders = SendMembershipReminders(admin)
+    await sendMembershipReminders()
+  })

@@ -1,10 +1,12 @@
 import * as Admin from 'firebase-admin'
-import { Moment } from 'moment'
+import dayjs, { Dayjs } from 'dayjs'
+import isBetween from 'dayjs/plugin/isBetween'
 import got from 'got'
+
+dayjs.extend(isBetween)
 
 const csv = require('csvtojson')
 const request = require('request')
-const moment = require('moment')
 
 const SPREADSHEET_URL =
   'https://docs.google.com/spreadsheets/d/1FZOB291KWLoutpr0s6VeK5EtvuiQ8uhe497nOmWoqPA/export?format=csv&usp=sharing'
@@ -18,7 +20,7 @@ interface Weather {
 
 interface CSVEvent {
   month: number
-  moment: Moment,
+  moment: Dayjs,
   'is-special-event': string,
   subject: string,
   what: string,
@@ -55,16 +57,16 @@ const getEvents = async (): Promise<CSVEvent[]> => {
       return event
     })
     .filter((event: CSVEvent) => {
-      const momentEvent = moment(event)
+      const dayjsEvent = dayjs(event as any)
       return (
-        momentEvent.isValid() &&
-        momentEvent.isAfter(moment().subtract(1, 'day'))
+        dayjsEvent.isValid() &&
+        dayjsEvent.isAfter(dayjs().subtract(1, 'day'))
       )
     })
     .sort((a: CSVEvent, b: CSVEvent) => {
-      const momentA = moment(a)
-      const momentB = moment(b)
-      return momentA.valueOf() - momentB.valueOf()
+      const dayjsA = dayjs(a as any)
+      const dayjsB = dayjs(b as any)
+      return dayjsA.valueOf() - dayjsB.valueOf()
     })
 }
 
@@ -89,32 +91,32 @@ const UpdateEvents = (admin: Admin.app.App, appId: string, cityId: string) => {
 
     events.forEach((event: CSVEvent) => {
       rawWeather.find((currEntry: RawWeather, index: number) => {
-        const currDT = moment.unix(currEntry.dt)
+        const currDT = dayjs.unix(currEntry.dt)
         const currTemp = currEntry.main.temp
         let nextDT
         let nextTemp
         const nextEntry: RawWeather = rawWeather[index + 1]
         if (nextEntry) {
-          nextDT = moment.unix(nextEntry.dt)
+          nextDT = dayjs.unix(nextEntry.dt)
           nextTemp = nextEntry.main.temp
         } else {
-          nextDT = moment(currDT).add(3, 'h')
+          nextDT = dayjs(currDT).add(3, 'hour')
           nextTemp = currTemp
         }
-        const isBetween = moment(event).isBetween(
+        const isInRange = dayjs(event as any).isBetween(
           currDT,
           nextDT,
           undefined,
           '[)'
         )
-        if (isBetween) {
+        if (isInRange) {
           event.weather = {
             description: currEntry.weather[0].description,
             icon: currEntry.weather[0].icon,
             temp:
               currTemp +
               ((nextTemp - currTemp) / (nextDT.unix() - currDT.unix())) *
-              (moment(event).unix() - currDT.unix()),
+              (dayjs(event as any).unix() - currDT.unix()),
             wind: currEntry.wind.speed
           }
           return true

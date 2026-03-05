@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import moment, { Moment } from 'moment'
+import dayjs, { Dayjs } from 'dayjs'
+import objectSupport from 'dayjs/plugin/objectSupport'
+dayjs.extend(objectSupport)
 import CalendarSelector from './CalendarSelector'
-import ExpendMoreIcon from '@material-ui/icons/ExpandMore'
-import { useMediaQuery, useTheme, IconButton } from '@material-ui/core'
+import ExpendMoreIcon from '@mui/icons-material/ExpandMore'
+import { useMediaQuery, useTheme, IconButton } from '@mui/material'
 
 import { firestore } from '../../../firebase'
 import { doc, getDoc } from 'firebase/firestore'
@@ -48,7 +50,7 @@ interface Weather {
 
 interface CSVEvent {
   month: number
-  moment: Moment,
+  moment: Dayjs,
   'is-special-event': string,
   subject: string,
   what: string,
@@ -67,7 +69,7 @@ function EventSchedule() {
   const [loadMoreClicked, setLoadMoreClicked] = useState(0)
 
   // const covid19 = () => {
-  //   const now = moment()
+  //   const now = dayjs()
   //
     // @ts-ignore
     // const ev = {
@@ -100,7 +102,7 @@ function EventSchedule() {
       //   values: [...itemsCovid19.values, ...itemsNotCovid19.values]
       // }
       itemsNotCovid19.values.forEach((event: CSVEvent) => {
-        event.moment = moment(event)
+        event.moment = dayjs(event)
       })
       setEvents(itemsNotCovid19.values)
     })()
@@ -111,8 +113,8 @@ function EventSchedule() {
     if (!events.length) {
       return
     }
-    const res = events.filter((event: { moment: Moment }) => {
-      return event.moment.isBefore(moment().add(daysAhead, 'day'))
+    const res = events.filter((event: { moment: Dayjs }) => {
+      return event.moment.isBefore(dayjs().add(daysAhead, 'day'))
     })
     setFilteredEvents(res)
   }, [events, daysAhead])

@@ -1,11 +1,11 @@
 import calc from './membershipUtils'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { each } from 'underscore'
 import { IUserOptionalProps } from '../entities/User'
 
-const inAYear = moment().add(1, 'year')
-const tomorrow = moment().add(1, 'day')
-const past = moment().subtract(1)
+const inAYear = dayjs().add(1, 'year')
+const tomorrow = dayjs().add(1, 'day')
+const past = dayjs().subtract(1)
 
 it('membershipUtils', () => {
   const data = {

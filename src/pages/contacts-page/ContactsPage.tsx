@@ -7,13 +7,13 @@ import {
   Paper,
   Snackbar,
   Typography
-} from '@material-ui/core'
+} from '@mui/material'
 import FuzzySearch from 'fuzzy-search'
 import {
   Close as CloseIcon,
   FileCopy as CopyIcon,
   SaveAlt as SaveIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import * as PropTypes from 'prop-types'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { connect } from 'react-redux'
@@ -25,9 +25,9 @@ import {
   EMAIL,
   SUBSCRIBERS_ARRAY_KEY
 } from '../../fields'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { ROOT } from '../../urls'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
 import { ExportToCsv } from 'export-to-csv'
 // @ts-ignore
@@ -65,7 +65,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
       showLabels: true,
       useBom: true,
       useKeysAsHeaders: true,
-      filename: 'contacts-' + moment().format()
+      filename: 'contacts-' + dayjs().format()
     }
 
     const csvExporter = new ExportToCsv(options)
@@ -178,7 +178,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
   }
 
   if (firebaseUser && !allowRead) {
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (
@@ -224,7 +224,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
         <div className="d-flex flex-row align-items-center">
           <span onClick={() => setShowSubscribers(!showSubscribers)}>
             <Checkbox checked={showSubscribers} />
-            <Chip label="Subscribers" color="default" />
+            <Chip label="Subscribers" />
           </span>
           <Help />
         </div>

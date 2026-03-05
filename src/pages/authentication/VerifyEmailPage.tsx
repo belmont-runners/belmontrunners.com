@@ -1,13 +1,12 @@
 import { auth } from '../../firebase'
 import React, { useState, useEffect } from 'react'
-import * as PropTypes from 'prop-types'
 import {
   EXPIRED_ACTION_CODE,
   INVALID_ACTION_CODE_INVALID_URL,
   USER_DISABLED_INVALID_URL,
   USER_NOT_FOUND_INVALID_URL
 } from '../../messages'
-import { Redirect, withRouter, RouteComponentProps } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { ROOT } from '../../urls'
 import {
   Button,
@@ -16,12 +15,14 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle
-} from '@material-ui/core'
+} from '@mui/material'
 import * as Sentry from '@sentry/browser'
 import {applyActionCode, AuthError } from 'firebase/auth'
 
-// @ts-ignore
-const VerifyEmailPage = ({ location: { state: { query: { oobCode } } } }: RouteComponentProps) => {
+const VerifyEmailPage = () => {
+  const location = useLocation()
+  // @ts-ignore
+  const { query: { oobCode } } = location.state
   const [close, setClose] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
@@ -65,7 +66,7 @@ const VerifyEmailPage = ({ location: { state: { query: { oobCode } } } }: RouteC
 
   if (close) {
     console.log('redirecting to root', close)
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (
@@ -100,15 +101,4 @@ const VerifyEmailPage = ({ location: { state: { query: { oobCode } } } }: RouteC
   )
 }
 
-VerifyEmailPage.propTypes = {
-  location: PropTypes.shape({
-    state: PropTypes.shape({
-      query: PropTypes.shape({
-        oobCode: PropTypes.string.isRequired
-      }).isRequired
-    }).isRequired
-  }).isRequired
-}
-
-// @ts-ignore
-export default withRouter(VerifyEmailPage)
+export default VerifyEmailPage

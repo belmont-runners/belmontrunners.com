@@ -1,16 +1,18 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import configureStore, { history } from './store'
+import configureStore from './store'
 import './index.css'
 import App from './App'
-import { ConnectedRouter } from 'connected-react-router'
-import { Elements, StripeProvider } from 'react-stripe-elements'
+import { BrowserRouter } from 'react-router-dom'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import ErrorBoundary from './components/ErrorBoundary'
 import * as serviceWorker from './serviceWorker'
 import * as Sentry from '@sentry/browser'
 import theme from './MuiTheme'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 
 // Sentry init
 Sentry.init({
@@ -21,29 +23,31 @@ Sentry.init({
 const store = configureStore()
 
 console.log(
-  'process.env.REACT_APP_STRIPE_PUBLIC_KEY:',
-  process.env.REACT_APP_STRIPE_PUBLIC_KEY
+  'import.meta.env.VITE_STRIPE_PUBLIC_KEY:',
+  import.meta.env.VITE_STRIPE_PUBLIC_KEY
 )
 
-if (!process.env.REACT_APP_STRIPE_PUBLIC_KEY) {
-  console.error('Missing REACT_APP_STRIPE_PUBLIC_KEY')
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  console.error('Missing VITE_STRIPE_PUBLIC_KEY')
 } else {
-  ReactDOM.render(
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  const container = document.getElementById('root')!
+  const root = createRoot(container)
+  root.render(
     <ErrorBoundary>
       <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <MuiThemeProvider theme={theme}>
-            <StripeProvider apiKey={process.env.REACT_APP_STRIPE_PUBLIC_KEY}>
-              <Elements>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <LegacyThemeProvider theme={theme}>
+              <Elements stripe={stripePromise}>
                 {/*@ts-ignore*/}
                 <App />
               </Elements>
-            </StripeProvider>
-          </MuiThemeProvider>
-        </ConnectedRouter>
+            </LegacyThemeProvider>
+          </ThemeProvider>
+        </BrowserRouter>
       </Provider>
-    </ErrorBoundary>,
-    document.getElementById('root')
+    </ErrorBoundary>
   )
 
 // If you want your app to work offline and load faster, you can change

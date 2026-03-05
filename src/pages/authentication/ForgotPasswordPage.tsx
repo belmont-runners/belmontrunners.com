@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { INVALID_EMAIL, USER_NOT_FOUND_EXPLICIT } from '../../messages'
 import {
   Button,
@@ -8,8 +8,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle
-} from '@material-ui/core'
-import { TextField } from 'final-form-material-ui'
+} from '@mui/material'
+import { TextField } from '../../components/FinalFormMuiAdapters'
 import { ROOT } from '../../urls'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { Field, Form } from 'react-final-form'
@@ -58,7 +58,7 @@ const ForgotPasswordPage = () => {
 
   if (close) {
     console.log('redirecting to root', close)
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (

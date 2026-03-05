@@ -5,9 +5,10 @@ import { auth, firestore } from '../firebase'
 import { Action, Dispatch } from 'redux'
 import { User, sendEmailVerification as sendEmailVerificationFirebase } from 'firebase/auth'
 import {collection, doc, getDoc, setDoc } from 'firebase/firestore'
-import { props } from 'bluebird'
 
-const moment = require('moment')
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 
 const PREFIX = 'CURRENT_USER'
 
@@ -35,24 +36,19 @@ const fetchUserData = async () => {
 const fetchPermissions = async () => {
   const permissionsRef = collection(firestore, "permissions");
 
-  const {
+  const [
     docUsersRead,
     docUsersWrite,
     docUsersDelete,
     docContactsRead,
     docContactsWrite
-  } = await props({
-    docUsersRead:
-      getDoc(doc(permissionsRef, 'usersRead')),
-    docUsersWrite:
-      getDoc(doc(permissionsRef, 'usersWrite')),
-    docUsersDelete:
-      getDoc(doc(permissionsRef, 'usersDelete')),
-    docContactsRead:
-      getDoc(doc(permissionsRef, 'subscribersRead')),
-    docContactsWrite:
-      getDoc(doc(permissionsRef, 'subscribersWrite'))
-  })
+  ] = await Promise.all([
+    getDoc(doc(permissionsRef, 'usersRead')),
+    getDoc(doc(permissionsRef, 'usersWrite')),
+    getDoc(doc(permissionsRef, 'usersDelete')),
+    getDoc(doc(permissionsRef, 'subscribersRead')),
+    getDoc(doc(permissionsRef, 'subscribersWrite'))
+  ])
   return {
     usersRead: docUsersRead.data(),
     usersWrite: docUsersWrite.data(),
@@ -118,9 +114,9 @@ export const fetchCurrentUser: IFetchCurrentUser = () => {
 
                 if (
                   !emailVerificationSentAt ||
-                  moment(emailVerificationSentAt)
+                  dayjs(emailVerificationSentAt)
                     .add(1, 'day')
-                    .isBefore(moment())
+                    .isBefore(dayjs())
                 ) {
                   await sendEmailVerification()(dispatch, getState)
                 }
@@ -133,10 +129,10 @@ export const fetchCurrentUser: IFetchCurrentUser = () => {
               'auth.currentUser:',
               auth.currentUser
             )
-            const createdAt: string = moment(creationTime)
+            const createdAt: string = dayjs(creationTime)
               .utc()
               .format()
-            const lastSignedInAt: string = moment(lastSignInTime)
+            const lastSignedInAt: string = dayjs(lastSignInTime)
               .utc()
               .format()
             const values: IUserOptionalProps = { createdAt, lastSignedInAt, emailVerified }
@@ -158,7 +154,7 @@ export const sendEmailVerification: ISendEmailVerification = () => {
       throw new Error('firebaseUser is null')
     }
     await sendEmailVerificationFirebase(firebaseUser)
-    const emailVerificationSentAt: string = moment()
+    const emailVerificationSentAt: string = dayjs()
       .utc()
       .format()
     const values: IUserOptionalProps = {

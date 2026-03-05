@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import * as EmailValidator from 'email-validator'
 import * as Sentry from '@sentry/browser'
 import { httpsCallable } from 'firebase/functions'
-import { IconButton, Snackbar } from '@material-ui/core'
-import { Close as CloseIcon } from '@material-ui/icons'
+import { IconButton, Snackbar } from '@mui/material'
+import { Close as CloseIcon } from '@mui/icons-material'
 import { functions, auth } from '../../firebase';
 import { RecaptchaVerifier } from 'firebase/auth'
 
@@ -156,8 +156,13 @@ My email address is: ${email}`
                 Get updates about runs and other events.
               </p>
               <div id="mc_embed_signup">
-                <div className="subscribe_form relative">
-                  <div className="input-group d-flex flex-row">
+                <div className="subscribe_form">
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                    justifyContent: 'center',
+                  }}>
                     <input
                       name="EMAIL"
                       placeholder={placeholder}
@@ -167,6 +172,18 @@ My email address is: ${email}`
                       type="email"
                       onChange={event => setEmail(event.target.value)}
                       value={email}
+                      style={{
+                        flex: '1 1 200px',
+                        maxWidth: '340px',
+                        height: '40px',
+                        border: '1px solid #333333',
+                        borderRadius: '20px',
+                        paddingLeft: '20px',
+                        paddingRight: '20px',
+                        fontSize: '13px',
+                        color: '#999999',
+                        background: '#fff',
+                      }}
                     />
                     <button
                       className="btn sub-btn"
@@ -175,6 +192,10 @@ My email address is: ${email}`
                       onClick={e => {
                         e && e.preventDefault()
                         setIsSubmitting(true)
+                      }}
+                      style={{
+                        position: 'static',
+                        right: 'auto',
                       }}
                     >
                       Subscribe

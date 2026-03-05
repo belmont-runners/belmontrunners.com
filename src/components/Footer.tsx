@@ -1,15 +1,6 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core'
-import { BLOG } from '../urls'
 
 function Footer() {
-  const useStyles = makeStyles(() => ({
-    i: {
-      color: 'red'
-    }
-  }))
-  const classes = useStyles()
-
   return (
     <footer className="footer-area pad_btm">
       <div className="container">
@@ -36,17 +27,10 @@ function Footer() {
             >
               <i className="fab fa-strava" />
             </a>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={BLOG}
-            >
-              <i className="fas fa-blog" />
-            </a>
           </div>
           <p className="col-lg-4 col-12 footer-text ">
             This website was built with{' '}
-            <i className={`${classes.i} fas fa-heart`} aria-hidden="true" /> by{' '}
+            <i className="fas fa-heart" aria-hidden="true" style={{ color: 'red' }} /> by{' '}
             <a
               href="https://www.oronnadiv.com"
               target="_blank"

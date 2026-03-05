@@ -3,7 +3,7 @@ import MUIDataTable from 'mui-datatables'
 import { User } from 'firebase/auth'
 import { doc, collection, setDoc, getDocs } from 'firebase/firestore'
 import { httpsCallable } from 'firebase/functions'
-import DeleteIcon from '@material-ui/icons/Delete'
+import DeleteIcon from '@mui/icons-material/Delete'
 import * as PropTypes from 'prop-types'
 import {
   ADDRESS1,
@@ -23,17 +23,17 @@ import {
   UID,
   ZIP
 } from '../../fields'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import { animateScroll } from 'react-scroll'
 import googleLibPhoneNumber from 'google-libphonenumber'
 import _, { compose } from 'underscore'
 import { connect } from 'react-redux'
-import { Avatar, Checkbox, IconButton } from '@material-ui/core'
+import { Avatar, Checkbox, IconButton } from '@mui/material'
 import * as Sentry from '@sentry/browser'
 import { getAvatar, IRedisState, IUser } from '../../entities/User'
 import { ROOT } from '../../urls'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import ConfirmDeletion from './ConfirmDeletion'
 import calc from '../../utilities/membershipUtils'
 import { firestore, functions } from '../../firebase'
@@ -93,9 +93,9 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
           [STATE]: data.state || '',
           [ZIP]: data.zip || '',
           [GENDER]: data.gender || '',
-          [DATE_OF_BIRTH]: data.dateOfBirth ? moment(data.dateOfBirth).format(DATE_OF_BIRTH_FORMAT) : '',
-          [CREATED_AT]: data.createdAt ? moment(data.createdAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
-          [MEMBERSHIP_EXPIRES_AT]: data.membershipExpiresAt ? moment(data.membershipExpiresAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
+          [DATE_OF_BIRTH]: data.dateOfBirth ? dayjs(data.dateOfBirth).format(DATE_OF_BIRTH_FORMAT) : '',
+          [CREATED_AT]: data.createdAt ? dayjs(data.createdAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
+          [MEMBERSHIP_EXPIRES_AT]: data.membershipExpiresAt ? dayjs(data.membershipExpiresAt).format(MEMBERSHIP_EXPIRES_AT_FORMAT) : '',
           [MEMBERSHIP_STATUS]: '',
           [EMAIL_VERIFIED]: !!data.emailVerified,
           [NOT_INTERESTED_IN_BECOMING_A_MEMBER]: !!data.notInterestedInBecomingAMember
@@ -314,7 +314,7 @@ function UsersPage({ firebaseUser, allowDelete, allowRead, allowWrite }: Props) 
   })
 
   if (firebaseUser && !allowRead) {
-    return <Redirect to={ROOT} />
+    return <Navigate to={ROOT} replace />
   }
 
   return (
