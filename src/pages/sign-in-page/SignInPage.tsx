@@ -18,7 +18,6 @@ import {
 } from '@mui/material'
 import { FORGOT_PASSWORD, ROOT } from '../../urls'
 import LoggedInState from '../../components/HOC/LoggedInState'
-import * as Sentry from '@sentry/browser'
 import { Field, Form } from 'react-final-form'
 import { EMAIL, PASSWORD } from '../../fields'
 import { animateScroll } from 'react-scroll'
@@ -62,7 +61,7 @@ function SignInPage({ firebaseUser }: Props) {
         setErrorMessage(POPUP_CLOSED_BEFORE_COMPLETION)
         break
       default:
-        Sentry.captureException(error)
+        console.error(error)
         console.error('SignInPage', 'code:', code, 'message:', message)
         setErrorMessage(message)
     }

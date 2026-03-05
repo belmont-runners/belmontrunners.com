@@ -1,5 +1,4 @@
 import { Map as IMap } from 'immutable'
-import * as Sentry from '@sentry/browser'
 import React from 'react'
 import * as PropTypes from 'prop-types'
 import { Form } from 'react-final-form'
@@ -56,7 +55,7 @@ function MyProfileForm({
       navigate(ROOT)
     } catch (error) {
       onSubmitting(false)
-      Sentry.captureException(error)
+      console.error(error)
       console.error('error response:', error)
       // todo: show an error message
     }

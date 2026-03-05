@@ -26,7 +26,6 @@ import {
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
-import * as Sentry from '@sentry/browser'
 import { Field, Form } from 'react-final-form'
 import { DISPLAY_NAME, EMAIL, PASSWORD } from '../../fields'
 import { animateScroll } from 'react-scroll'
@@ -98,7 +97,7 @@ function SignUpStepAuth({ onNextClicked, isLast }: Props) {
         setErrorMessage(POPUP_CLOSED_BEFORE_COMPLETION)
         break
       default:
-        Sentry.captureException(error)
+        console.error(error)
         console.error('signUpError', error)
         setErrorMessage(message)
     }

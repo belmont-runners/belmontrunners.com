@@ -12,7 +12,6 @@ import {
 import { TextField } from '../../components/FinalFormMuiAdapters'
 import { ROOT } from '../../urls'
 import { RESET_PASSWORD_SUCCESS } from '../../messages'
-import * as Sentry from '@sentry/browser'
 import { PASSWORD } from '../../fields'
 import { Field, Form } from 'react-final-form'
 import { animateScroll } from 'react-scroll'
@@ -43,7 +42,7 @@ function ResetPasswordPage() {
     if (code === 'auth/weak-password') {
       setErrorMessage(WEAK_PASSWORD)
     } else {
-      Sentry.captureException(error)
+      console.error(error)
       console.error('ResetPasswordPage', 'code:', code, 'message:', message)
       setErrorMessage(message)
     }

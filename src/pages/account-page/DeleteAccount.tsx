@@ -6,7 +6,6 @@ import { Button, Card, CardContent, Typography } from '@mui/material'
 import DeleteAccountDialog from './DeleteAccountDialog'
 import { UID } from '../../fields'
 import { ROOT } from '../../urls'
-import * as Sentry from '@sentry/browser'
 import { Snackbar } from '../../components/Snackbar'
 import { IRedisState } from '../../entities/User'
 import { User } from 'firebase/auth'
@@ -38,7 +37,7 @@ function DeleteAccount({ firebaseUser, onSubmitting, isSubmitting }: Props) {
         window.location.href = ROOT
       } catch (error) {
         onSubmitting(false)
-        Sentry.captureException(error)
+        console.error(error)
         console.error('error from deleteAccount:', error)
         setError('Operation failed.')
       }

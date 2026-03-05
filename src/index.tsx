@@ -9,16 +9,10 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import ErrorBoundary from './components/ErrorBoundary'
 import * as serviceWorker from './serviceWorker'
-import * as Sentry from '@sentry/browser'
 import theme from './MuiTheme'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 
-// Sentry init
-Sentry.init({
-  dsn: 'https://38a18be9353a4b6ba6d58b6be978d285@sentry.io/1469731',
-  debug: import.meta.env.DEV
-})
 
 const store = configureStore()
 

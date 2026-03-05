@@ -28,7 +28,6 @@ import {
 import dayjs from 'dayjs'
 import { ROOT } from '../../urls'
 import { Navigate } from 'react-router-dom'
-import * as Sentry from '@sentry/browser'
 import { ExportToCsv } from 'export-to-csv'
 // @ts-ignore
 import { parseFullName } from 'parse-full-name'
@@ -97,7 +96,7 @@ function ContactsPage({ firebaseUser, allowRead }: Props) {
 
         setContacts(contactsTmp)
       } catch (error) {
-        Sentry.captureException(error)
+        console.error(error)
         console.error(error)
       }
     })()

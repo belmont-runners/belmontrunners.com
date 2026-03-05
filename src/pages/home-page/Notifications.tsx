@@ -7,7 +7,6 @@ import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 import * as PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import * as Sentry from '@sentry/browser'
 import UpdateUserDataHOC from '../../components/HOC/UpdateUserData'
 import { Map as IMap } from 'immutable'
 import { compose } from 'underscore'
@@ -83,7 +82,7 @@ function Notifications({ firebaseUser, userData, updateUserData }: Props) {
       await updateUserData(values, { merge: true }
       )
     } catch (error) {
-      Sentry.captureException(error)
+      console.error(error)
       console.error('error while dismissNotification.  error:', error)
     }
   }

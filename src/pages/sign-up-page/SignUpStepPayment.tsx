@@ -10,7 +10,6 @@ import advancedFormat from 'dayjs/plugin/advancedFormat'
 dayjs.extend(advancedFormat)
 import { ROOT } from '../../urls'
 import { connect } from 'react-redux'
-import * as Sentry from '@sentry/browser'
 import { useNavigate } from 'react-router-dom'
 import UpdateUserData from '../../components/HOC/UpdateUserData'
 import { animateScroll } from 'react-scroll'
@@ -125,7 +124,7 @@ function SignUpStepPayment({
           throw stripeResponse
         }
       } catch (error) {
-        Sentry.captureException(error)
+        console.error(error)
         // todo:handle case where charge failed by showing an error message
         console.error('stripeError:', error)
       } finally {

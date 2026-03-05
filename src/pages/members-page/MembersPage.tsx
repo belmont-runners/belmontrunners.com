@@ -2,7 +2,6 @@ import { functions } from '../../firebase'
 import React, { useCallback, useEffect, useState } from 'react'
 import { DISPLAY_NAME, UID } from '../../fields'
 import * as PropTypes from 'prop-types'
-import * as Sentry from '@sentry/browser'
 import { connect } from 'react-redux'
 import {
   Avatar,
@@ -73,7 +72,7 @@ function MembersPage({
             }
           }
         }
-        Sentry.captureException(err)
+        console.error(err)
         setShowError(true)
       } finally {
         setIsLoading(false)
