@@ -22,8 +22,8 @@ const admin: Admin.app.App = Admin.initializeApp()
 const firestore: Firestore = admin.firestore()
 
 // Environment parameters (replaces functions.config())
-const mailchimpApiKey = defineString('MAILCHIMP_APIKEY')
-const openweathermapAppId = defineString('OPENWEATHERMAP_APP_ID')
+const mailchimpApiKey = defineSecret('MAILCHIMP_APIKEY')
+const openweathermapAppId = defineSecret('OPENWEATHERMAP_APP_ID')
 const openweathermapCityId = defineString('OPENWEATHERMAP_CITY_ID')
 const stripeMembershipFeeInCents = defineString('STRIPE_MEMBERSHIP_FEE_IN_CENTS')
 const stripeSecretKeyLive = defineSecret('STRIPE_SECRET_KEY_LIVE')
@@ -35,7 +35,7 @@ const generateICal = GenerateICal()
 const ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS = 180
 
 export const purgeUsersUnder13CronJob = functions
-  .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS })
+  .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS, secrets: [mailchimpApiKey] })
   .pubsub
   .schedule('10 */6 * * *')
   .onRun(async () => {
@@ -70,7 +70,7 @@ export const users2ContactsCronJob = functions
   })
 
 export const contacts2MailChimpCronJob = functions
-  .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS })
+  .runWith({ timeoutSeconds: ITERATION_ON_ACCOUNTS_TIMEOUT_IN_SECONDS, secrets: [mailchimpApiKey] })
   .pubsub
   .schedule('40 */6 * * *')
   .onRun(async () => {
@@ -91,6 +91,7 @@ export const contacts2MailChimpCronJob = functions
   })
 
 export const updateEventsCronJob = functions
+  .runWith({ secrets: [openweathermapAppId] })
   .pubsub
   .schedule('*/20 * * * *')
   .onRun(async () => {
@@ -155,7 +156,7 @@ export const getMembers = functions
   })
 
 export const deleteUser = functions
-  .runWith({ timeoutSeconds: 30, memory: '512MB' })
+  .runWith({ timeoutSeconds: 30, memory: '512MB', secrets: [mailchimpApiKey] })
   .https
   .onCall(async (data, context) => {
     if (!context || !context.auth || !context.auth.uid) {
