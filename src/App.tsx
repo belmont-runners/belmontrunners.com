@@ -30,7 +30,6 @@ import {
   VERIFY_EMAIL
 } from './urls'
 import UsersPage from './pages/users-page/UsersPage'
-import * as Sentry from '@sentry/browser'
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage'
 import Complete from './pages/authentication/Complete'
 import RecoverEmailPage from './pages/authentication/RecoverEmailPage'
@@ -90,20 +89,6 @@ function App({ fetchCurrentUser, firebaseUser }: Props) {
           name: firebaseUser.displayName || ''
         }
         LogRocket.identify(firebaseUser.uid, userTraits)
-
-        LogRocket.getSessionURL(sessionURL => {
-          Sentry.setUser({
-            id: firebaseUser.uid,
-            email: firebaseUser.email || undefined,
-            displayName: firebaseUser.displayName
-          })
-          Sentry.setExtra('sessionURL', sessionURL)
-        })
-      } else {
-        LogRocket.getSessionURL(sessionURL => {
-          Sentry.setUser(null)
-          Sentry.setExtra('sessionURL', sessionURL)
-        })
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,7 +101,7 @@ function App({ fetchCurrentUser, firebaseUser }: Props) {
         <Route path={PROFILE} element={<Wrapper><MyProfilePage /></Wrapper>} />
         <Route path={ACCOUNT} element={<Wrapper><AccountPage /></Wrapper>} />
         <Route path={ABOUT_US} element={<Wrapper><AboutUsPage /></Wrapper>} />
-        <Route path={MEMBERS} element={<Wrapper><MembersPage /></Wrapper>} />
+        <Route path={`${MEMBERS}/*`} element={<Wrapper><MembersPage /></Wrapper>} />
         <Route path={USERS} element={<Wrapper><UsersPage /></Wrapper>} />
         <Route path={CONTACTS} element={<Wrapper><ContactsPage /></Wrapper>} />
         <Route path={FAQ} element={<Wrapper><FaqPage /></Wrapper>} />
