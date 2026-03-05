@@ -1,5 +1,4 @@
 import React from 'react'
-import { BLOG } from '../urls'
 
 function Footer() {
   return (
@@ -27,13 +26,6 @@ function Footer() {
               href="https://www.strava.com/clubs/505246"
             >
               <i className="fab fa-strava" />
-            </a>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={BLOG}
-            >
-              <i className="fas fa-blog" />
             </a>
           </div>
           <p className="col-lg-4 col-12 footer-text ">

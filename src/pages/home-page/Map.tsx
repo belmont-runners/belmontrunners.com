@@ -22,7 +22,7 @@ function MapComponent() {
             streetViewControl={false}
             zoomControl={false}
             fullscreenControl={false}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '600px' }}
           />
         </APIProvider>
       </div>
