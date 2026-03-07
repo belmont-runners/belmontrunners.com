@@ -1,8 +1,7 @@
 import { functions } from '../../firebase'
-import React, { useEffect, useState } from 'react'
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { loadStripe } from '@stripe/stripe-js'
 import SignUpStepperButton from './SignUpStepperButton'
-import './Stripe.scss'
 import * as PropTypes from 'prop-types'
 import LoggedInState from '../../components/HOC/LoggedInState'
 import dayjs from 'dayjs'
@@ -18,14 +17,10 @@ import calc from '../../utilities/membershipUtils'
 import { IRedisState, IUser } from '../../entities/User'
 import { IUpdateUserData } from '../../reducers/currentUser'
 import { User } from '../../../functions/src/User';
-import {FunctionsError, httpsCallable } from 'firebase/functions'
+import { FunctionsError, httpsCallable } from 'firebase/functions'
 
 const MEMBERSHIP_FEE_ADULT = 20
 const MEMBERSHIP_FEE_KID = 10
-
-interface StripeTransactionResponse {
-  id: string
-}
 
 interface Props {
   firebaseUser: User
@@ -49,8 +44,6 @@ function SignUpStepPayment({
                              updateUserData
                            }: Props) {
   const navigate = useNavigate()
-  const stripe = useStripe()
-  const elements = useElements()
   useEffect(() => {
     animateScroll.scrollToTop({ duration: 0 })
   }, [])
@@ -58,93 +51,114 @@ function SignUpStepPayment({
   const [errorMessage, setErrorMessage] = useState<string>()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [confirmationNumber, setConfirmationNumber] = useState('')
+  const [checkoutMounted, setCheckoutMounted] = useState(false)
+  const checkoutRef = useRef<any>(null)
+  const checkoutContainerRef = useRef<HTMLDivElement>(null)
 
-  const createToken = async () => {
-    if (!stripe || !elements) {
-      return
-    }
-    try {
-      const cardElement = elements.getElement(CardElement)
-      if (!cardElement) {
-        setErrorMessage('Card element not found')
-        return
-      }
-      const stripeTokenResponse = await stripe.createToken(cardElement)
-      console.log('stripeTokenResponse:', JSON.stringify(stripeTokenResponse, null, 2))
-      if (stripeTokenResponse.error) {
-        setErrorMessage(stripeTokenResponse.error.message || 'Payment failed')
-        return
-      }
-      return stripeTokenResponse
-    } catch (error) {
-      throw new Error(
-        `unknown stripe response.  response: ${JSON.stringify(error)}`
-      )
-    }
-  }
-
+  // Clean up embedded checkout on unmount
   useEffect(() => {
-    if (!isSubmitting) {
-      return
+    return () => {
+      if (checkoutRef.current) {
+        checkoutRef.current.destroy()
+      }
     }
+  }, [])
 
-    ;(async function() {
+  // Handle return from embedded checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get('session_id')
+    if (!sessionId) return
+
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname)
+
+    ;(async function () {
+      setIsSubmitting(true)
       try {
-        const stripeResponse = await createToken()
-        console.log('stripeResponse2:', !!stripeResponse)
-        if (!stripeResponse || !stripeResponse.token) {
-          return
-        }
-        const body = {
-          token: stripeResponse.token,
-          origin: window.origin,
-          description: `Annual membership for Belmont Runners. name: ${displayName} email: ${email}  uid: ${uid}`,
-          amountInCents: totalAmount * 100
-        }
-        const stripeFunction = httpsCallable(functions, 'stripe')
-
-        try {
-          const response = await stripeFunction(body)
-          const data : StripeTransactionResponse = response.data as StripeTransactionResponse
-          const stripeConfirmationId = data.id
-          setConfirmationNumber(stripeConfirmationId)
-        } catch (error) {
-          console.warn('Error from stripe.  error:', error)
-          if (error) {
-            const funcError = error as FunctionsError
-            if (funcError.message) {
-              const stripeError = JSON.parse(funcError.message)
-              console.warn('stripeError:', stripeError)
-              const message = stripeError.message || (stripeError.raw && stripeError.raw.message) || stripeError.code || 'Failed for unknown reason.\nPlease contact support.'
-              setErrorMessage(message)
-              return
-            }
-          }
-          // todo: handle case where it's not stripe error.
-          throw stripeResponse
-        }
+        const confirmFn = httpsCallable(functions, 'confirmCheckoutSession')
+        const response = await confirmFn({
+          sessionId,
+          origin: window.origin
+        })
+        const data = response.data as { confirmationNumber: string }
+        setConfirmationNumber(data.confirmationNumber)
       } catch (error) {
-        console.error(error)
-        // todo:handle case where charge failed by showing an error message
-        console.error('stripeError:', error)
+        console.warn('Error confirming checkout session:', error)
+        const funcError = error as FunctionsError
+        if (funcError.message) {
+          setErrorMessage(funcError.message)
+        } else {
+          setErrorMessage(
+            'Your payment was processed successfully, but we encountered an error updating your membership. ' +
+            'Please contact membership@belmontrunners.com and we will resolve this promptly.'
+          )
+        }
       } finally {
         setIsSubmitting(false)
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubmitting])
+  }, [])
 
-  // we want to refresh UserData in case the confirmation number has changed.
-  // This would let the components know the user became a member.
+  // Refresh user data after confirmation
   useEffect(() => {
-    if (!confirmationNumber) {
-      return
-    }
-    ;(async function() {
+    if (!confirmationNumber) return
+    ;(async function () {
       await updateUserData({}, { merge: true })
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmationNumber])
+
+  const handleStartCheckout = useCallback(async () => {
+    if (checkoutMounted) return
+    setIsSubmitting(true)
+    setErrorMessage(undefined)
+
+    try {
+      const createSessionFn = httpsCallable(functions, 'createCheckoutSession')
+      const response = await createSessionFn({
+        amountInCents: totalAmount * 100,
+        description: `Annual membership for Belmont Runners. name: ${displayName} email: ${email} uid: ${uid}`,
+        origin: window.origin,
+        returnUrl: `${window.origin}/join?session_id={CHECKOUT_SESSION_ID}`,
+        customerEmail: email
+      })
+      const data = response.data as { clientSecret: string }
+
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+      if (!stripe) {
+        setErrorMessage('Failed to load Stripe. Please refresh and try again.')
+        return
+      }
+
+      const checkout = await stripe.initEmbeddedCheckout({
+        clientSecret: data.clientSecret,
+      })
+      checkoutRef.current = checkout
+
+      if (checkoutContainerRef.current) {
+        checkout.mount(checkoutContainerRef.current)
+        setCheckoutMounted(true)
+      }
+    } catch (error) {
+      console.warn('Error creating checkout session:', error)
+      const funcError = error as FunctionsError
+      if (funcError.message) {
+        try {
+          const parsed = JSON.parse(funcError.message)
+          setErrorMessage(parsed.message || parsed.code || 'Failed to start payment.')
+        } catch {
+          setErrorMessage(funcError.message)
+        }
+      } else {
+        setErrorMessage('Failed to start payment. Please try again.')
+      }
+    } finally {
+      if (!checkoutMounted) {
+        setIsSubmitting(false)
+      }
+    }
+  }, [checkoutMounted, totalAmount, displayName, email, uid])
 
   const getBody = () => {
     if (confirmationNumber) {
@@ -205,7 +219,18 @@ function SignUpStepPayment({
       )
     }
 
-    // need to pay.
+    // need to pay
+    if (checkoutMounted) {
+      return (
+        <>
+          <div ref={checkoutContainerRef} className="mt-3" />
+          {errorMessage && (
+            <div className="text-danger text-center mt-2">{errorMessage}</div>
+          )}
+        </>
+      )
+    }
+
     return (
       <>
         <h6 className="mt-3">Membership fees</h6>
@@ -227,8 +252,6 @@ function SignUpStepPayment({
               )}`}
           </div>
         )}
-        <h5 className="mb-2">Credit or debit card</h5>
-        <CardElement onReady={el => el.focus()} />
         {errorMessage && (
           <div className="text-danger text-center">{errorMessage}</div>
         )}
@@ -243,9 +266,11 @@ function SignUpStepPayment({
   }
 
   function handleNextClicked() {
-    confirmationNumber || !needToPay
-      ? onNextClicked()
-      : setIsSubmitting(true)
+    if (confirmationNumber || !needToPay) {
+      onNextClicked()
+    } else {
+      handleStartCheckout()
+    }
   }
 
   return (
@@ -269,11 +294,11 @@ function SignUpStepPayment({
         rel="noopener noreferrer"
         href="https://arunnersmind.com"
       >
-        A Runner’s Mind
+        A Runner's Mind
       </a>
       <br />
       {getBody()}
-      {
+      {!checkoutMounted && (
         <SignUpStepperButton
           handlePrimaryClicked={handleNextClicked}
           primaryText={
@@ -281,7 +306,7 @@ function SignUpStepPayment({
               ? isLast
               ? 'Finish'
               : 'Next'
-              : isSubmitting ? 'Processing payment...' : 'Pay Now'
+              : isSubmitting ? 'Loading checkout...' : 'Pay Now'
           }
           primaryDisabled={isSubmitting}
           showPrimary
@@ -290,13 +315,10 @@ function SignUpStepPayment({
           secondaryDisabled={isSubmitting}
           showSecondary={needToPay && !confirmationNumber}
         />
-      }
+      )}
       {
-        isSubmitting && (<div className='text-center text-danger'>
-          <div>It may take up to 30 seconds to complete</div>
-          <div className='mt-0 font-weight-bold'>
-            Please do not refresh the page
-          </div>
+        isSubmitting && !checkoutMounted && (<div className='text-center text-danger'>
+          <div>Please wait...</div>
         </div>)
       }
     </div>

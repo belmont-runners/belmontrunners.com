@@ -37,7 +37,7 @@ function SignUpPage({ isCurrentUserLoaded, firebaseUser }: Props) {
   }
 
   return (
-    <div style={{ maxWidth: 350 }} className="mx-auto">
+    <div style={{ maxWidth: 350 }} className="mx-auto mt-4">
       <SignUpStepper steps={steps} />
     </div>
   )
