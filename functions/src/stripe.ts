@@ -13,10 +13,16 @@ import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 const _ = require('underscore')
 
-interface StripeParams {
-  token: { id: string }
-  description: string
+interface CreateCheckoutSessionParams {
   amountInCents: number
+  description: string
+  origin: string
+  returnUrl: string
+  customerEmail: string
+}
+
+interface ConfirmCheckoutSessionParams {
+  sessionId: string
   origin: string
 }
 
@@ -38,88 +44,122 @@ const Stripe = (admin: Admin.app.App, config: StripeConfig) => {
 
   const firestore = admin.firestore()
 
-  return async (data: StripeParams, context?: https.CallableContext) => {
+  const getStripeInstance = (origin: string) => {
+    const isLocal =
+      _.isString(origin) &&
+      (origin.indexOf('localhost') > -1 || origin.indexOf('127.0.0.1') > -1)
+    const isProduction = !isLocal
+    info({ isProduction, origin })
+    return isProduction ? stripeLive : stripeTest
+  }
 
-    info('stripe() called.', 'data:', data)
-
+  const assertAuth = (context?: https.CallableContext): string => {
     if (!context || !context.auth || !context.auth.uid) {
-      throw new https.HttpsError(
-        'unauthenticated',
-        'unauthenticated.'
-      )
+      throw new https.HttpsError('unauthenticated', 'unauthenticated.')
     }
-    const { uid } = context.auth
+    return context.auth.uid
+  }
+
+  const createCheckoutSession = async (data: CreateCheckoutSessionParams, context?: https.CallableContext) => {
+    info('createCheckoutSession() called.', 'data:', data)
+
+    const uid = assertAuth(context)
+    const { amountInCents, description, origin, returnUrl, customerEmail } = data
 
     const userDataRef = firestore.doc(`users/${uid}`)
-    const transactionsRef = firestore.doc(`users/${uid}/transactions/${dayjs().utc().format()}`)
-    const transactionsLastRef = firestore.doc(`users/${uid}/transactions/latest`)
-
-    const {
-      token,
-      description,
-      amountInCents,
-      origin
-    } = data
-
-    const { id } = token
-
     const userDoc = await userDataRef.get()
     if (!userDoc.data()) {
-      throw new https.HttpsError(
-        'internal',
-        'Something went wrong...'
-      )
+      throw new https.HttpsError('internal', 'Something went wrong...')
     }
     const userDataJS: User = userDoc.data() as User
     const isAMember = calc(userDataJS).isAMember
     const isMembershipExpiresSoon = calc(userDataJS).isMembershipExpiresSoon
-    if (isAMember && !isMembershipExpiresSoon){
+    if (isAMember && !isMembershipExpiresSoon) {
       warn('member has a valid membership that does not expire soon.', {
         membershipExpiresAt: userDataJS.membershipExpiresAt,
         isAMember,
         isMembershipExpiresSoon
       })
-      throw new https.HttpsError(
-          'internal',
-          'Already a member.'
-      )
+      throw new https.HttpsError('internal', 'Already a member.')
     }
 
-    const { membershipExpiresAt } = userDataJS
-
-    let charge
     const amount: number = amountInCents || parseInt(config.membershipFeeInCents)
+    const stripe = getStripeInstance(origin)
+
     try {
-      const isLocal =
-        _.isString(origin) &&
-        (origin.indexOf('localhost') > -1 || origin.indexOf('127.0.0.1') > -1)
-      const isProduction = !isLocal
-      info({isProduction,  origin})
-      const stripe = isProduction ? stripeLive : stripeTest
-      charge = await stripe.charges.create({
-        amount,
-        currency: 'usd',
-        description: description || 'Annual membership for Belmont Runners',
-        source: id
-      })
+      // Using 'as any' because stripe SDK v8 types don't include embedded checkout fields,
+      // but the Stripe API supports them at runtime
+      const session = await stripe.checkout.sessions.create({
+        ui_mode: 'embedded',
+        mode: 'payment',
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Belmont Runners Annual Membership',
+              description: description || 'Annual membership for Belmont Runners',
+            },
+            unit_amount: amount,
+          },
+          quantity: 1,
+        }],
+        customer_email: customerEmail,
+        metadata: { uid },
+        return_url: returnUrl,
+      } as any)
+      info('checkout session created.', { id: session.id })
+      return { clientSecret: (session as any).client_secret }
     } catch (err) {
-      warn('charge error.', {err})
-      throw new https.HttpsError(
-        'invalid-argument',
-        JSON.stringify(err)
-      )
+      warn('checkout session create error.', { err })
+      throw new https.HttpsError('invalid-argument', JSON.stringify(err))
     }
-    info('charge complete successfully.', {charge})
+  }
 
+  const confirmCheckoutSession = async (data: ConfirmCheckoutSessionParams, context?: https.CallableContext) => {
+    info('confirmCheckoutSession() called.', 'data:', data)
 
-    const confirmationNumber = charge.id
+    const uid = assertAuth(context)
+    const { sessionId, origin } = data
+    const stripe = getStripeInstance(origin)
+
+    let session
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId)
+    } catch (err) {
+      warn('checkout session retrieve error.', { err })
+      throw new https.HttpsError('not-found', 'Payment session not found.')
+    }
+
+    if (session.metadata?.uid !== uid) {
+      throw new https.HttpsError('permission-denied', 'Payment does not belong to this user.')
+    }
+
+    if (session.payment_status !== 'paid') {
+      throw new https.HttpsError('failed-precondition',
+        `Payment has not succeeded. Status: ${session.payment_status}`)
+    }
+
+    const confirmationNumber = session.payment_intent as string
+
+    // Idempotency: check if this payment was already confirmed
+    const userDataRef = firestore.doc(`users/${uid}`)
+    const transactionsRef = firestore.doc(`users/${uid}/transactions/${dayjs().utc().format()}`)
+    const transactionsLastRef = firestore.doc(`users/${uid}/transactions/latest`)
+
+    const existingLatest = await transactionsLastRef.get()
+    if (existingLatest.exists && existingLatest.data()?.confirmationNumber === confirmationNumber) {
+      info('Payment already confirmed.', { confirmationNumber })
+      return { confirmationNumber }
+    }
+
+    const userDoc = await userDataRef.get()
+    const userDataJS: User = userDoc.data() as User
+    const { membershipExpiresAt } = userDataJS
 
     let newMembershipExpiresAt
     const yearFromNow = dayjs().add(1, 'year')
     if (membershipExpiresAt) {
-      const membershipExpiresAtPlusOneYear = dayjs(
-        membershipExpiresAt
-      ).add(1, 'year')
+      const membershipExpiresAtPlusOneYear = dayjs(membershipExpiresAt).add(1, 'year')
       if (membershipExpiresAtPlusOneYear.isBefore(yearFromNow)) {
         newMembershipExpiresAt = yearFromNow
       } else {
@@ -129,38 +169,40 @@ const Stripe = (admin: Admin.app.App, config: StripeConfig) => {
       newMembershipExpiresAt = yearFromNow
     }
 
+    const amount = session.amount_total || 0
     const values = {
-      // stripeResponse: JSON.stringify(stripeResponse),
-      stripeResponse: { token },
+      stripeResponse: { sessionId: session.id, paymentIntentId: confirmationNumber },
       paidAt: dayjs().utc().format(),
       paidAmount: amount / 100,
-      confirmationNumber: confirmationNumber
+      confirmationNumber
     }
-    userDataJS.notInterestedInBecomingAMember = false
-    userDataJS.membershipExpiresAt = newMembershipExpiresAt.utc().format()
 
     await Promise.all([
-          transactionsRef.set(values),
-          transactionsLastRef.set(values),
-          userDataRef.set({
-            notInterestedInBecomingAMember: userDataJS.notInterestedInBecomingAMember,
-            membershipExpiresAt: userDataJS.membershipExpiresAt
-          }, {merge: true})
-        ])
-        .then(() =>
-            firestore.collection('mail').add({
-              toUids: [userDataJS.uid],
-              bcc: 'membership@belmontrunners.com',
-              template: {
-                name: "welcome",
-                data: {
-                  displayName: userDataJS.displayName,
-                },
-              },
-            })
-        )
-    return charge
+      transactionsRef.set(values),
+      transactionsLastRef.set(values),
+      userDataRef.set({
+        notInterestedInBecomingAMember: false,
+        membershipExpiresAt: newMembershipExpiresAt.utc().format()
+      }, { merge: true })
+    ])
+      .then(() =>
+        firestore.collection('mail').add({
+          toUids: [userDataJS.uid],
+          bcc: 'membership@belmontrunners.com',
+          template: {
+            name: "welcome",
+            data: {
+              displayName: userDataJS.displayName,
+            },
+          },
+        })
+      )
+
+    info('checkout session confirmed.', { confirmationNumber })
+    return { confirmationNumber }
   }
+
+  return { createCheckoutSession, confirmCheckoutSession }
 }
 
 export default Stripe

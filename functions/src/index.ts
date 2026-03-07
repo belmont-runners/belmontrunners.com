@@ -129,15 +129,18 @@ export const ical = functions
     }
   })
 
-export const stripe = functions
+const stripeConfig = () => Stripe(admin, {
+  membershipFeeInCents: stripeMembershipFeeInCents.value(),
+  secretKeys: { live: stripeSecretKeyLive.value(), test: stripeSecretKeyTest.value() }
+})
+
+export const createCheckoutSession = functions
   .runWith({ memory: '512MB', secrets: [stripeSecretKeyLive, stripeSecretKeyTest] })
-  .https.onCall((data, context) => {
-    const stripeImpl = Stripe(admin, {
-      membershipFeeInCents: stripeMembershipFeeInCents.value(),
-      secretKeys: { live: stripeSecretKeyLive.value(), test: stripeSecretKeyTest.value() }
-    })
-    return stripeImpl(data, context)
-  })
+  .https.onCall((data, context) => stripeConfig().createCheckoutSession(data, context))
+
+export const confirmCheckoutSession = functions
+  .runWith({ memory: '512MB', secrets: [stripeSecretKeyLive, stripeSecretKeyTest] })
+  .https.onCall((data, context) => stripeConfig().confirmCheckoutSession(data, context))
 
 export const addContact = functions
   .runWith({ memory: '512MB' })
