@@ -6,24 +6,20 @@ This repository hosts the source code for our club's [website](https://www.belmo
 #### Tools:
 
 - React (with hooks)
-- Redux
-- Material UI
-- React router
-- Typescript
+- Redux (Redux Toolkit)
+- MUI (Material UI)
+- React Router
+- TypeScript
+- Vite
+- Sass
 
 #### Third parties:
 
-- [Firebase](https://firebase.google.com/) - Firestore, Functions, Authentication, Storage, and Hosting.
-- [Stripe](https://stripe.com/) - online payment processing.
-- [Mailgun](https://www.mailgun.com/) - email API service.
-- [Mailchimp](https://mailchimp.com/) - Updating the contacts directory for email marketing.
-- [Sentry](https://sentry.io/) - error monitoring that helps discover, triage, and prioritize errors in real-time.
-- [Drift](https://www.drift.com/) - live chat.
-- [CircleCI](https://circleci.com/) - continuous integration and delivery.
-- [Cloudflare](https://www.cloudflare.com/) - CDN, DNS, DDoS protection and security.
-- [OpenWeatherMap](https://openweathermap.org/) - current weather, daily forecast.
-- [LogRocket](https://logrocket.com/) - logging and session reply.
-- [Gravatar](https://en.gravatar.com/) - Globally Recognised Avatar. A web service that allows users to upload a personal online avatar and associate it with their email address.
-- Facebook integration.
-- Google maps integration.
-- Instagram integration.
+- [Firebase](https://firebase.google.com/) - Firestore, Functions, Authentication, Storage, Hosting, and Trigger Email extension.
+- [Stripe](https://stripe.com/) - online payment processing (Embedded Checkout).
+- [Mailchimp](https://mailchimp.com/) - contacts directory sync for email marketing.
+- [OpenWeatherMap](https://openweathermap.org/) - current weather and daily forecast for events.
+- [LogRocket](https://logrocket.com/) - logging and session replay.
+- [Gravatar](https://en.gravatar.com/) - avatar service linked to email addresses.
+- Facebook authentication integration.
+- Google Maps integration.
