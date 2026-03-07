@@ -220,40 +220,34 @@ function SignUpStepPayment({
     }
 
     // need to pay
-    if (checkoutMounted) {
-      return (
-        <>
-          <div ref={checkoutContainerRef} className="mt-3" />
-          {errorMessage && (
-            <div className="text-danger text-center mt-2">{errorMessage}</div>
-          )}
-        </>
-      )
-    }
-
     return (
       <>
-        <h6 className="mt-3">Membership fees</h6>
-        &bull; Adult (18 and over): $20
-        <br />
-        &bull; Kids: $10.
-        <br />
-        <h4 className="my-4">
-          Total amount: ${totalAmount > 0 ? totalAmount : ''}
-        </h4>
-        {membershipExpiresAt && (
-          <div className="text-success mb-3 text-center">
-            {dayjs(membershipExpiresAt).isAfter(dayjs())
-              ? `Your current membership expires on ${dayjs(membershipExpiresAt).format(
-                'MMMM Do YYYY'
-              )}`
-              : `Your membership expired on ${dayjs(membershipExpiresAt).format(
-                'MMMM Do YYYY'
-              )}`}
-          </div>
+        {!checkoutMounted && (
+          <>
+            <h6 className="mt-3">Membership fees</h6>
+            &bull; Adult (18 and over): $20
+            <br />
+            &bull; Kids: $10.
+            <br />
+            <h4 className="my-4">
+              Total amount: ${totalAmount > 0 ? totalAmount : ''}
+            </h4>
+            {membershipExpiresAt && (
+              <div className="text-success mb-3 text-center">
+                {dayjs(membershipExpiresAt).isAfter(dayjs())
+                  ? `Your current membership expires on ${dayjs(membershipExpiresAt).format(
+                    'MMMM Do YYYY'
+                  )}`
+                  : `Your membership expired on ${dayjs(membershipExpiresAt).format(
+                    'MMMM Do YYYY'
+                  )}`}
+              </div>
+            )}
+          </>
         )}
+        <div ref={checkoutContainerRef} className="mt-3" />
         {errorMessage && (
-          <div className="text-danger text-center">{errorMessage}</div>
+          <div className="text-danger text-center mt-2">{errorMessage}</div>
         )}
       </>
     )
