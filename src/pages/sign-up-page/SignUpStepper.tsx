@@ -15,10 +15,11 @@ export const STEP_MEMBERSHIP = 'STEP_MEMBERSHIP'
 
 interface Props {
   steps: string[]
+  initialStep?: number
 }
 
-function SignUpStepper({ steps }: Props) {
-  const [activeStep, setActiveStep] = useState(0)
+function SignUpStepper({ steps, initialStep = 0 }: Props) {
+  const [activeStep, setActiveStep] = useState(initialStep)
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)

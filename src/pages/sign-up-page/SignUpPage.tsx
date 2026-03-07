@@ -36,9 +36,15 @@ function SignUpPage({ isCurrentUserLoaded, firebaseUser }: Props) {
     return <></>
   }
 
+  // When returning from Stripe checkout, skip directly to the Membership step
+  const params = new URLSearchParams(window.location.search)
+  const initialStep = params.get('session_id')
+    ? Math.max(steps.indexOf(STEP_MEMBERSHIP), 0)
+    : 0
+
   return (
     <div style={{ maxWidth: 350 }} className="mx-auto mt-4">
-      <SignUpStepper steps={steps} />
+      <SignUpStepper steps={steps} initialStep={initialStep} />
     </div>
   )
 }
