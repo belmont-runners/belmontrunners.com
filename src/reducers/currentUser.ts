@@ -90,8 +90,6 @@ export const fetchCurrentUser: IFetchCurrentUser = () => {
               fetchUserData()
             ])
             const firebaseUser = auth.currentUser
-            console.log('permissions', permissions)
-            console.log('userData', userData)
             const data: IFetchedCurrentUserData = {
               firebaseUser,
               permissions : permissions as IUserPermissions,

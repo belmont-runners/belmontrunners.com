@@ -82,7 +82,6 @@ function App({ fetchCurrentUser, firebaseUser }: Props) {
   const prevFirebaseUser = usePrevious(firebaseUser)
   useEffect(() => {
     if (prevFirebaseUser !== firebaseUser) {
-      console.log('currentUser is different:', firebaseUser)
       if (firebaseUser) {
         const userTraits = {
           email: firebaseUser.email || '',

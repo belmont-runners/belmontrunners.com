@@ -14,11 +14,6 @@ import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 
 const store = configureStore()
 
-console.log(
-  'import.meta.env.VITE_STRIPE_PUBLIC_KEY:',
-  import.meta.env.VITE_STRIPE_PUBLIC_KEY
-)
-
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   console.error('Missing VITE_STRIPE_PUBLIC_KEY')
 }
