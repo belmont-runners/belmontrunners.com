@@ -54,7 +54,7 @@ const GenerateICal = () =>
       events
         .map(event => {
           event.month--
-          event.moment = dayjs.tz(new Date(event.year, event.month, event.day), 'America/Los_Angeles')
+          event.moment = dayjs.tz(new Date(event.year, event.month, event.day, event.hour || 0, event.minute || 0), 'America/Los_Angeles')
           return event
         })
         .filter(event => {

@@ -2,6 +2,8 @@ interface Event {
   year: number
   month: number
   day: number
+  hour: number
+  minute: number
   subject: string
   where: string
   what: string
