@@ -52,14 +52,13 @@ const GenerateICal = () =>
         )
       )
       events
+        .filter(event => event.year && event.month && event.day)
         .map(event => {
           event.month--
           event.moment = dayjs.tz(new Date(event.year, event.month, event.day, event.hour || 0, event.minute || 0), 'America/Los_Angeles')
           return event
         })
-        .filter(event => {
-          return event.year && event.month && event.day && event.moment.isValid()
-        })
+        .filter(event => event.moment.isValid())
         .sort((a: EventEX, b: EventEX) => {
           return a.moment.valueOf() - b.moment.valueOf()
         })
