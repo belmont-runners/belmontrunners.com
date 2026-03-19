@@ -58,7 +58,7 @@ const GenerateICal = () =>
           return event
         })
         .filter(event => {
-          return event.moment.isValid()
+          return event.year && event.month && event.day && event.moment.isValid()
         })
         .sort((a: EventEX, b: EventEX) => {
           return a.moment.valueOf() - b.moment.valueOf()
