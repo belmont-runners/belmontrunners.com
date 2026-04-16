@@ -19,7 +19,11 @@ interface Weather {
 }
 
 interface CSVEvent {
+  year: number
   month: number
+  day: number
+  hour: number
+  minute: number
   moment: Dayjs,
   'is-special-event': string,
   subject: string,
@@ -29,8 +33,10 @@ interface CSVEvent {
   'facebook-event-id'?: string
   'is-members-only-event'?: string
   weather: Weather
-
 }
+
+const eventToDayjs = (event: CSVEvent): Dayjs =>
+  dayjs(new Date(event.year, event.month, event.day, event.hour || 0, event.minute || 0))
 
 interface RawWeather {
   dt: number
@@ -57,15 +63,15 @@ const getEvents = async (): Promise<CSVEvent[]> => {
       return event
     })
     .filter((event: CSVEvent) => {
-      const dayjsEvent = dayjs(event as any)
+      const dayjsEvent = eventToDayjs(event)
       return (
         dayjsEvent.isValid() &&
         dayjsEvent.isAfter(dayjs().subtract(1, 'day'))
       )
     })
     .sort((a: CSVEvent, b: CSVEvent) => {
-      const dayjsA = dayjs(a as any)
-      const dayjsB = dayjs(b as any)
+      const dayjsA = eventToDayjs(a)
+      const dayjsB = eventToDayjs(b)
       return dayjsA.valueOf() - dayjsB.valueOf()
     })
 }
@@ -103,7 +109,7 @@ const UpdateEvents = (admin: Admin.app.App, appId: string, cityId: string) => {
           nextDT = dayjs(currDT).add(3, 'hour')
           nextTemp = currTemp
         }
-        const isInRange = dayjs(event as any).isBetween(
+        const isInRange = eventToDayjs(event).isBetween(
           currDT,
           nextDT,
           undefined,
@@ -116,7 +122,7 @@ const UpdateEvents = (admin: Admin.app.App, appId: string, cityId: string) => {
             temp:
               currTemp +
               ((nextTemp - currTemp) / (nextDT.unix() - currDT.unix())) *
-              (dayjs(event as any).unix() - currDT.unix()),
+              (eventToDayjs(event).unix() - currDT.unix()),
             wind: currEntry.wind.speed
           }
           return true
