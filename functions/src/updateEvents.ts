@@ -1,9 +1,11 @@
 import * as Admin from 'firebase-admin'
 import dayjs, { Dayjs } from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
+import objectSupport from 'dayjs/plugin/objectSupport'
 import got from 'got'
 
 dayjs.extend(isBetween)
+dayjs.extend(objectSupport)
 
 const csv = require('csvtojson')
 const request = require('request')
