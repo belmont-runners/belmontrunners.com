@@ -113,8 +113,12 @@ function EventSchedule() {
     if (!events.length) {
       return
     }
+    const startOfToday = dayjs().startOf('day')
     const res = events.filter((event: { moment: Dayjs }) => {
-      return event.moment.isBefore(dayjs().add(daysAhead, 'day'))
+      return (
+        !event.moment.isBefore(startOfToday) &&
+        event.moment.isBefore(dayjs().add(daysAhead, 'day'))
+      )
     })
     setFilteredEvents(res)
   }, [events, daysAhead])
