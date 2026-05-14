@@ -4,74 +4,36 @@ import objectSupport from 'dayjs/plugin/objectSupport'
 dayjs.extend(objectSupport)
 import CalendarSelector from './CalendarSelector'
 import ExpendMoreIcon from '@mui/icons-material/ExpandMore'
-import { useMediaQuery, useTheme, IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import { IconButton } from '@mui/material'
 
 import { firestore } from '../../../firebase'
 import { doc, getDoc } from 'firebase/firestore'
 
-const CITY_ID = 5392423
-
-const getMapLink = (eventElement: string) => {
-  return (
-    <span style={{ paddingRight: '1em' }}>
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href={`https://maps.app.goo.gl/${eventElement}`}
-      >
-        <i className="fas fa-map-marker-alt" />
-        &nbsp;Meeting Point
-      </a>
-    </span>
-  )
-}
-
-const getFacebookEventLink = (eventElement: string) => {
-  return (
-    <span>
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href={`https://www.facebook.com/events/${eventElement}`}
-      >
-        <i className="fab fa-facebook-square" />
-        &nbsp;Facebook Event
-      </a>
-    </span>
-  )
-}
-
-interface Weather {
-  icon: string
-  description: string
-  temp: number
-  wind: number
-}
-
-interface CSVEvent {
-  month: number
-  moment: Dayjs,
-  'is-special-event': string,
-  subject: string,
-  what: string,
-  where: string,
-  'google-map-id'?: string
-  'facebook-event-id'?: string
-  'is-members-only-event'?: string
-  'image-url'?: string
-  weather: Weather
-}
-
-const eventImageSrc = (event: CSVEvent): string | undefined => {
-  const url = event['image-url']?.trim()
-  return url || undefined
-}
+import type { CSVEvent } from './types'
+import { CITY_ID } from './constants'
+import { eventImageLightboxSrc, eventImageSrc } from './utils'
+import { getFacebookEventLink, getMapLink } from './links'
+import {
+  EventDetailsColumn,
+  EventImageStripButton,
+  EventImageStripImg,
+  EventRow,
+  ImageLightboxCloseButton,
+  ImageLightboxContent,
+  ImageLightboxDialog,
+  ImageLightboxImg,
+  MembersOnlyBadgeImg,
+  RunnerIconImg,
+  WeatherAside
+} from './styles'
 
 function EventSchedule() {
   const [events, setEvents] = useState<CSVEvent[]>([])
   const [filteredEvents, setFilteredEvents] = useState<CSVEvent[]>([])
   const [daysAhead, setDaysAhead] = useState(15)
   const [loadMoreClicked, setLoadMoreClicked] = useState(0)
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
 
   const fetchEventsFromFirestore = async () => {
     const eventsRef = doc(firestore, 'events/items')
@@ -100,11 +62,33 @@ function EventSchedule() {
     setFilteredEvents(res)
   }, [events, daysAhead])
 
-  const theme = useTheme()
-  const isSmallDevice = useMediaQuery(theme.breakpoints.down('sm'))
+  const closeLightbox = () => setLightbox(null)
 
   return (
     <section className="event_schedule_area pad_btm">
+      <ImageLightboxDialog
+        open={Boolean(lightbox)}
+        onClose={closeLightbox}
+        maxWidth="lg"
+        fullWidth
+      >
+        <ImageLightboxContent>
+          <ImageLightboxCloseButton
+            type="button"
+            onClick={closeLightbox}
+            aria-label="Close enlarged image"
+          >
+            <CloseIcon />
+          </ImageLightboxCloseButton>
+          {lightbox && (
+            <ImageLightboxImg
+              src={lightbox.src}
+              alt={lightbox.alt}
+              referrerPolicy="no-referrer"
+            />
+          )}
+        </ImageLightboxContent>
+      </ImageLightboxDialog>
       <div className="container">
         <div className="main_title">
           <h2>Upcoming Events</h2>
@@ -120,112 +104,103 @@ function EventSchedule() {
               role="tabpanel"
               aria-labelledby="home-tab"
             >
-              {
-                filteredEvents.map(
-                  (filteredEvent: CSVEvent, index) => {
-                    const imageSrc = eventImageSrc(filteredEvent)
-                    const eventImageAlt = imageSrc
-                      ? `Image for ${filteredEvent.subject}`
-                      : 'Runner icon'
-                    return (
-                      <div
-                        key={index}
+              {filteredEvents.map((filteredEvent: CSVEvent, index) => {
+                const imageSrc = eventImageSrc(filteredEvent)
+                const lightboxSrc = eventImageLightboxSrc(filteredEvent)
+                const eventImageAlt = `Image for ${filteredEvent.subject}`
+                const openLightbox = () => {
+                  if (lightboxSrc) {
+                    setLightbox({ src: lightboxSrc, alt: eventImageAlt })
+                  }
+                }
+                return (
+                  <EventRow
+                    key={index}
+                    className="media d-flex flex-row align-items-stretch flex-nowrap"
+                  >
+                    <div className="d-flex flex-shrink-0 align-self-center">
+                      <RunnerIconImg
+                        src="img/schedule/schedule-3.png"
+                        alt="Runner icon"
+                        loading="lazy"
+                      />
+                    </div>
+                    <EventDetailsColumn className="media-body flex-grow-1">
+                      <h5>{filteredEvent.moment.format('MMMM D h:mm a')}</h5>
+                      <h4
                         className={
-                          isSmallDevice && imageSrc
-                            ? 'media flex-column align-items-stretch'
-                            : 'media align-items-center'
+                          filteredEvent['is-special-event'] === 'TRUE'
+                            ? 'special-event'
+                            : undefined
                         }
                       >
-                        {isSmallDevice && imageSrc && (
-                          <div className="w-100 mb-3">
-                            <img
-                              className="rounded"
-                              src={imageSrc}
-                              alt={eventImageAlt}
-                              loading="lazy"
-                              style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }}
-                            />
-                          </div>
-                        )}
-                        {!isSmallDevice && (
-                          <div className="d-flex flex-shrink-0 me-3 align-self-start">
-                            <img
-                              src={imageSrc || 'img/schedule/schedule-3.png'}
-                              alt={eventImageAlt}
-                              loading="lazy"
-                              style={
-                                imageSrc
-                                  ? { width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }
-                                  : undefined
-                              }
-                            />
-                          </div>
-                        )}
-                        <div className="media-body">
-                          <h5>{filteredEvent.moment.format('MMMM D h:mm a')}</h5>
-                          <h4
-                            className={
-                              filteredEvent['is-special-event'] === 'TRUE'
-                                ? 'special-event'
-                                : undefined
-                            }
-                          >
-                            {filteredEvent.moment.format('dddd')}{' '}
-                            {filteredEvent.subject}
-                          </h4>
-                          <p>What: {filteredEvent.what}</p>
-                          <p>Where: {filteredEvent.where}</p>
-                          {filteredEvent['google-map-id'] ||
-                          filteredEvent['facebook-event-id'] ? (
-                            <div className="d-flex flex-wrap">
-                              {filteredEvent['google-map-id'] &&
-                              getMapLink(filteredEvent['google-map-id'])}
-                              {filteredEvent['facebook-event-id'] &&
-                              getFacebookEventLink(
-                                filteredEvent['facebook-event-id']
-                              )}
-                            </div>
-                          ) : (
-                            <span />
-                          )}
-                        </div>
-                        <div style={{ minWidth:90 }}>
-                          <div className='text-center'>
-                            {filteredEvent['is-members-only-event'] === 'TRUE' && (
-                              <img
-                                src="img/schedule/members-only-t.png"
-                                alt="Members only"
-                                style={{ width: '5em' }}
-                              />
+                        {filteredEvent.moment.format('dddd')}{' '}
+                        {filteredEvent.subject}
+                      </h4>
+                      <p>What: {filteredEvent.what}</p>
+                      <p>Where: {filteredEvent.where}</p>
+                      {filteredEvent['google-map-id'] ||
+                      filteredEvent['facebook-event-id'] ? (
+                        <div className="d-flex flex-wrap">
+                          {filteredEvent['google-map-id'] &&
+                            getMapLink(filteredEvent['google-map-id'])}
+                          {filteredEvent['facebook-event-id'] &&
+                            getFacebookEventLink(
+                              filteredEvent['facebook-event-id']
                             )}
-                          </div>
-                          <div className="text-center">
-                            {filteredEvent.weather && (
-                              <a
-                                className="flex-d flex-row align-content-center"
-                                target="_blank"
-                                rel="noreferrer noopener"
-                                href={`https://openweathermap.org/city/${CITY_ID}`}
-                              >
-                                <img
-                                  alt="weather icon"
-                                  src={`https://openweathermap.org/img/wn/${filteredEvent.weather.icon}.png`}
-                                />
-                                <div className="text-muted">
-                                  {filteredEvent.weather.description}
-                                </div>
-                                <div className="weather-temp">
-                                  {Math.round(filteredEvent.weather.temp)} °F
-                                </div>
-                              </a>
-                            )}
-                          </div>
                         </div>
+                      ) : (
+                        <span />
+                      )}
+                    </EventDetailsColumn>
+                    {imageSrc && lightboxSrc && (
+                      <EventImageStripButton
+                        type="button"
+                        aria-label={`View larger image: ${filteredEvent.subject}`}
+                        onClick={openLightbox}
+                      >
+                        <EventImageStripImg
+                          src={imageSrc}
+                          alt={eventImageAlt}
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      </EventImageStripButton>
+                    )}
+                    <WeatherAside>
+                      <div className="text-center">
+                        {filteredEvent['is-members-only-event'] === 'TRUE' && (
+                          <MembersOnlyBadgeImg
+                            src="img/schedule/members-only-t.png"
+                            alt="Members only"
+                          />
+                        )}
                       </div>
-                    )
-                  }
+                      <div className="text-center">
+                        {filteredEvent.weather && (
+                          <a
+                            className="flex-d flex-row align-content-center"
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            href={`https://openweathermap.org/city/${CITY_ID}`}
+                          >
+                            <img
+                              alt="weather icon"
+                              src={`https://openweathermap.org/img/wn/${filteredEvent.weather.icon}.png`}
+                            />
+                            <div className="text-muted">
+                              {filteredEvent.weather.description}
+                            </div>
+                            <div className="weather-temp">
+                              {Math.round(filteredEvent.weather.temp)} °F
+                            </div>
+                          </a>
+                        )}
+                      </div>
+                    </WeatherAside>
+                  </EventRow>
                 )
-              }
+              })}
             </div>
           </div>
         </div>
