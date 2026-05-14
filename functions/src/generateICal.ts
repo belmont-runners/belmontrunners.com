@@ -14,15 +14,17 @@ interface GetDescriptionParams {
   description: string
   facebookEventId?: string
   googleMapId?: string
+  imageUrl?: string
 }
 
 interface EventEX extends Event {
   moment: any
 }
 
-const getDescription = ({ description, facebookEventId, googleMapId }: GetDescriptionParams) => {
+const getDescription = ({ description, facebookEventId, googleMapId, imageUrl }: GetDescriptionParams) => {
   let facebookEvent
   let googleMap
+  let imageLine
   if (facebookEventId) {
     facebookEvent = `
 
@@ -33,7 +35,12 @@ Facebook event: https://www.facebook.com/events/${facebookEventId}`
 
 Meeting point: https://maps.app.goo.gl/${googleMapId}`
   }
-  return `${description}${facebookEvent || ''}${googleMap || ''}`
+  if (imageUrl?.trim()) {
+    imageLine = `
+
+Image: ${imageUrl.trim()}`
+  }
+  return `${description}${facebookEvent || ''}${googleMap || ''}${imageLine || ''}`
 }
 
 const GenerateICal = () =>
@@ -72,7 +79,8 @@ const GenerateICal = () =>
             description: getDescription({
               description: event.what,
               facebookEventId: event['facebook-event-id'],
-              googleMapId: event['google-map-id']
+              googleMapId: event['google-map-id'],
+              imageUrl: event['image-url']
             })
           })
         })
