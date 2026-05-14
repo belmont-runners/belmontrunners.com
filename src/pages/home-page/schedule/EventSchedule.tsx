@@ -58,58 +58,39 @@ interface CSVEvent {
   'google-map-id'?: string
   'facebook-event-id'?: string
   'is-members-only-event'?: string
+  'image-url'?: string
   weather: Weather
 }
 
+const eventImageSrc = (event: CSVEvent): string | undefined => {
+  const url = event['image-url']?.trim()
+  return url || undefined
+}
+
 function EventSchedule() {
-  // eslint-disable-next-line
   const [events, setEvents] = useState<CSVEvent[]>([])
   const [filteredEvents, setFilteredEvents] = useState<CSVEvent[]>([])
   const [daysAhead, setDaysAhead] = useState(15)
   const [loadMoreClicked, setLoadMoreClicked] = useState(0)
 
-  // const covid19 = () => {
-  //   const now = dayjs()
-  //
-    // @ts-ignore
-    // const ev = {
-    //   minute: now.minute(),
-    //   hour: now.hour(),
-    //   day: now.date(),
-    //   month: now.month(),
-    //   year: now.year(),
-    //   moment: now,
-    //   "is-special-event": 'FALSE',
-    //   subject: 'All Physical Group Runs Suspended due to COVID-19 Concerns',
-    //   what: '',
-    //   where: ''
-    // } as CSVEvent
-    // const items = {values: [ev]}
-    // return items
-  // }
-
-  const notCovid19 = async () => {
+  const fetchEventsFromFirestore = async () => {
     const eventsRef = doc(firestore, 'events/items')
     const eventsDoc = await getDoc(eventsRef)
-    return eventsDoc.data() as { values: CSVEvent[] }
+    return eventsDoc.data() as { values: CSVEvent[] } | undefined
   }
 
   useEffect(() => {
     ;(async function () {
-      const itemsNotCovid19 = await notCovid19()
-      // const itemsCovid19 = covid19()
-      // const items = {
-      //   values: [...itemsCovid19.values, ...itemsNotCovid19.values]
-      // }
-      itemsNotCovid19.values.forEach((event: CSVEvent) => {
+      const payload = await fetchEventsFromFirestore()
+      const list = payload?.values ?? []
+      list.forEach((event: CSVEvent) => {
         event.moment = dayjs(event)
       })
-      setEvents(itemsNotCovid19.values)
+      setEvents(list)
     })()
   }, [])
 
   useEffect(() => {
-    console.log('4 events.length:', events.length, 'daysAhead:', daysAhead)
     if (!events.length) {
       return
     }
@@ -142,13 +123,44 @@ function EventSchedule() {
               {
                 filteredEvents.map(
                   (filteredEvent: CSVEvent, index) => {
+                    const imageSrc = eventImageSrc(filteredEvent)
+                    const eventImageAlt = imageSrc
+                      ? `Image for ${filteredEvent.subject}`
+                      : 'Runner icon'
                     return (
-                      <div key={index} className="media align-items-center">
-                        {
-                          !isSmallDevice && <div className="d-flex">
-                            <img src="img/schedule/schedule-3.png" alt="Runner icon" />
-                          </div>
+                      <div
+                        key={index}
+                        className={
+                          isSmallDevice && imageSrc
+                            ? 'media flex-column align-items-stretch'
+                            : 'media align-items-center'
                         }
+                      >
+                        {isSmallDevice && imageSrc && (
+                          <div className="w-100 mb-3">
+                            <img
+                              className="rounded"
+                              src={imageSrc}
+                              alt={eventImageAlt}
+                              loading="lazy"
+                              style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }}
+                            />
+                          </div>
+                        )}
+                        {!isSmallDevice && (
+                          <div className="d-flex flex-shrink-0 me-3 align-self-start">
+                            <img
+                              src={imageSrc || 'img/schedule/schedule-3.png'}
+                              alt={eventImageAlt}
+                              loading="lazy"
+                              style={
+                                imageSrc
+                                  ? { width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }
+                                  : undefined
+                              }
+                            />
+                          </div>
+                        )}
                         <div className="media-body">
                           <h5>{filteredEvent.moment.format('MMMM D h:mm a')}</h5>
                           <h4

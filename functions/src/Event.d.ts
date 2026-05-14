@@ -10,6 +10,7 @@ interface Event {
   'facebook-event-id'?: string
   'google-map-id'?: string
   'is-members-only-event': string
+  'image-url'?: string
 }
 
 export default Event

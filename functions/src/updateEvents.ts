@@ -32,6 +32,7 @@ interface CSVEvent {
   'google-map-id'?: string
   'facebook-event-id'?: string
   'is-members-only-event'?: string
+  'image-url'?: string
   weather: Weather
 }
 
